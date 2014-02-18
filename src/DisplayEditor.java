@@ -1,11 +1,31 @@
+///////////////////////////////////////////////////////////////////////////////
+//                   ALL STUDENTS COMPLETE THESE SECTIONS
+// Title:            DisplayEditor.java
+// Files:            DblListNode.java, MessageLoop.java,
+//                   MessageLoopIterator.java, EmptyLoopException.java
+//                   UnrecognizedCharacterException.java
+//
+// Semester:         CS367 Spring 2014
+//
+// Author:           William Jen
+// Email:            wjen@wisc.edu
+// CS Login:         jen
+// Lecturer's Name:  Professor Jim Skrentny
+//////////////////// PAIR PROGRAMMERS COMPLETE THIS SECTION ////////////////////
+//
+// Pair Partner:     Allen Hung
+// Email:            athung2@wisc.edu
+// CS Login:         ahung
+// Lecturer's Name:  Professor Jim Skrentny
+//////////////////////////// 80 columns wide //////////////////////////////////
+
 import java.util.Scanner;
 
 public class DisplayEditor
 {
     public static void main(String[] args)
     {
-        //TODO Create empty loop of characters
-        
+        MessageLoop<String> loop = new MessageLoop<String>();
         
         boolean stop = false;
         Scanner scanner = new Scanner(System.in);
