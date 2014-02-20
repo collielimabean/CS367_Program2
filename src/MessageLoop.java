@@ -25,7 +25,7 @@ public class MessageLoop<E> implements LoopADT<E>
     public MessageLoop()
     {
         numItems = 0;
-        
+        current = null;
         /*
          * IMPORTANT: MUST BE DECIDED ON FIRST!
          * 
@@ -33,21 +33,35 @@ public class MessageLoop<E> implements LoopADT<E>
          *  Do not init current until item added
          *  Then init on addBefore/addAfter, etc.
          * 
-         * Design 2:
-         *  Init current, but have it reference itself
-         *  as previous/next node, but leave numItems = 0
-         *  When addAfter, addBefore is called, since numItems = 0
-         *  replace current data as the new item data
-         *  (still referencing itself)
          */
     }
     
     @Override
+    /**
+     * adds a new circular ListNode before the current reference
+     * @param item is a generic item that will become a DblListNode 
+     */
     public void addBefore(E item) 
     {
         // TODO Auto-generated method stub
         
-        /*
+    	/*if(E item == null)
+    	{
+    		throw new IllegalArgumentException();
+    	}
+    	*/
+    	if (current == null)
+    	{
+    		current = new DblListNode<E>(item, current, current);
+    		numItems++;
+    		return;
+    	}	
+    	
+    	DblListNode <E> newNode = new DblListNode<E> (item, current, current.getPrevious());
+    	current.setPrevious(newNode);
+    	current.getPrevious().setNext(newNode);
+    	numItems++;
+         /*
          * Methodology:
          * 
          * 1. Check if the next item before current is null
@@ -91,24 +105,17 @@ public class MessageLoop<E> implements LoopADT<E>
         
     }
 
-    @Override
+    /**
+     * returns the current reference on the DblListNode
+     */
     public E getCurrent() 
     {
         if(numItems <= 0)
             throw new EmptyLoopException();
         
         //TODO Implement this method
+        return current.getData();
         
-        /*
-         * Methodology:
-         * 
-         * 1. Return current.getData()
-         * 
-         * CAUTION: Depends on class design!
-         * SEE the constructor notes.
-         */
-        
-        return null;
     }
 
     @Override
@@ -130,15 +137,31 @@ public class MessageLoop<E> implements LoopADT<E>
          * 4. Set next node previous field to current.prev
          * 5. Return current's data.
          */
-        
-        return null;
+        DblListNode<E> previous = current.getPrevious();
+        DblListNode<E> next = current.getNext();
+        E data = current.getData();
+        current.setData(null);
+        current.setNext(null);
+        current.setPrevious(null);
+        previous.setNext(next);
+        next.setPrevious(previous);
+        current = next;
+        numItems--;
+        return data;
     }
 
     @Override
+    /**
+     * this method will move forward the current reference to the next node
+     */
     public void forward() 
     {
         // TODO Auto-generated method stub
-        
+        if (current == null || numItems <= 0)
+        {
+        	throw new EmptyLoopException();
+        }   
+        current = current.getNext();
         /*
          * Methodology:
          * 
@@ -160,6 +183,9 @@ public class MessageLoop<E> implements LoopADT<E>
     }
 
     @Override
+    /**
+     * returns the amount of listNodes as an integer
+     */
     public int size() 
     {
         return numItems;
@@ -168,8 +194,8 @@ public class MessageLoop<E> implements LoopADT<E>
     @Override
     public Iterator<E> iterator() 
     {
-        //TODO Determine if we need direct or indirect access
-        return null;
+    	//TODO Determine if we need direct or indirect access
+        return new MessageLoopIterator <E> (this);
     }
 
 }

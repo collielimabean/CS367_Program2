@@ -18,9 +18,12 @@ import java.util.Iterator;
 
 public class MessageLoopIterator<E> implements Iterator<E> 
 {
-    
+    private MessageLoop <E> temp;
     //TODO Implement constructor AFTER decision on direct/indirect access
-    
+    public MessageLoopIterator(MessageLoop <E> looper)
+    {
+    	temp = looper;
+    }
     @Override
     public boolean hasNext()
     {
@@ -29,10 +32,14 @@ public class MessageLoopIterator<E> implements Iterator<E>
     }
 
     @Override
+    /**
+     * returns the next reference in the listNode
+     */
     public E next() 
     {
-        // TODO Auto-generated method stub
-        return null;
+    	E data = temp.getCurrent();
+    	temp.forward();
+        return data;
     }
 
     @Override
