@@ -19,7 +19,7 @@ import java.util.Iterator;
 /**
  * This class implements the Iterator interface, and allows users to
  * traverse a MessageLoop using iterators.
- * @param <E> Type that the MessageLoop will hold
+ * @param <E> Type that the MessageLoopIterator will hold
  */
 class MessageLoopIterator<E> implements Iterator<E> 
 {
@@ -28,7 +28,7 @@ class MessageLoopIterator<E> implements Iterator<E>
     
     /**
      * Constructs a MessageLoopIterator object.
-     * @param looper
+     * @param current Current DblListNode that MessageLoop is referencing
      */
     MessageLoopIterator(DblListNode<E> current)
     {

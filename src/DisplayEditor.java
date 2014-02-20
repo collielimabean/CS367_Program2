@@ -21,10 +21,31 @@
 
 import java.util.Scanner;
 
+/**
+ * 
+ *
+ */
 public class DisplayEditor
 {
+    
+    /**
+     * 
+     * @param args
+     */
     public static void main(String[] args)
     {
+        //Check if valid number of command line arguments
+        if(args.length != 2 && args.length != 0)
+        {
+            System.out.println("Invalid command-line arguments.");
+            return;
+        }
+        
+        else
+        {
+            //handle zero case
+        }
+        
         MessageLoop<String> loop = new MessageLoop<String>();
         
         boolean stop = false;

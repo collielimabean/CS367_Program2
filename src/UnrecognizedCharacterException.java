@@ -14,6 +14,10 @@
 // Lecturer's Name:  Professor Jim Skrentny
 //////////////////////////// 80 columns wide //////////////////////////////////
 
+/**
+ * This exception is thrown when unrecognized characters are seen in
+ * the DotMatrix and are not contained in the specified alphabets.txt
+ */
 public class UnrecognizedCharacterException extends RuntimeException 
 {
 

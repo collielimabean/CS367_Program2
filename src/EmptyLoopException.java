@@ -14,6 +14,9 @@
 // Lecturer's Name:  Professor Jim Skrentny
 //////////////////////////// 80 columns wide //////////////////////////////////
 
+/**
+ * This exception is thrown when the MessageLoop has no elements.
+ */
 public class EmptyLoopException extends RuntimeException 
 {
 
