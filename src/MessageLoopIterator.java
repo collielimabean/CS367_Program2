@@ -16,37 +16,71 @@
 
 import java.util.Iterator;
 
-public class MessageLoopIterator<E> implements Iterator<E> 
+/**
+ * This class implements the Iterator interface, and allows users to
+ * traverse a MessageLoop using iterators.
+ * @param <E> Type that the MessageLoop will hold
+ */
+class MessageLoopIterator<E> implements Iterator<E> 
 {
-    private MessageLoop <E> temp;
-    //TODO Implement constructor AFTER decision on direct/indirect access
-    public MessageLoopIterator(MessageLoop <E> looper)
+    
+    private DblListNode<E> current;
+    
+    /**
+     * Constructs a MessageLoopIterator object.
+     * @param looper
+     */
+    MessageLoopIterator(DblListNode<E> current)
     {
-    	temp = looper;
+        this.current = current;
     }
-    @Override
+    
+    /**
+     * Checks whether if the next node exists
+     * @return true if there exists another node, false otherwise
+     */
     public boolean hasNext()
     {
-        // TODO Auto-generated method stub
+        if(current.getNext() != null)
+            return true;
+        
         return false;
     }
 
-    @Override
     /**
-     * returns the next reference in the listNode
+     * Advances the iterator to the next node.
+     * @return the item that the iterator passed
      */
     public E next() 
     {
-    	E data = temp.getCurrent();
-    	temp.forward();
+        E data = current.getData();
+        
+        if(hasNext())
+            current = current.getNext();
+        
         return data;
     }
-
-    @Override
+    
+    /**
+     * Removes the current item, and advances the iterator forward.
+     */
     public void remove()
     {
-        // TODO Auto-generated method stub
+        //Store previous and next references
+        DblListNode<E> previous = current.getPrevious();
+        DblListNode<E> next = current.getNext();
         
+        //wipe current
+        current.setData(null);
+        current.setNext(null);
+        current.setPrevious(null);
+        
+        //set references
+        previous.setNext(next);
+        next.setPrevious(previous);
+        
+        //set current to next
+        current = next;
     }
 
 }
