@@ -22,15 +22,15 @@
 import java.util.Scanner;
 
 /**
- * 
- *
+ * This class provides an entry point for the user to perform operations on
+ * a text-file containing a dot-matrix.
  */
 public class DisplayEditor
 {
     
     /**
-     * 
-     * @param args
+     * Entry point for this program.
+     * @param args Contains Command-line arguments
      */
     public static void main(String[] args)
     {
