@@ -19,6 +19,8 @@
 // Lecturer's Name:  Professor Jim Skrentny
 //////////////////////////// 80 columns wide //////////////////////////////////
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -43,11 +45,12 @@ public class DisplayEditor
         
         else
         {
-            //handle zero case
+         //not sure what to put here  
         }
         
         MessageLoop<String> loop = new MessageLoop<String>();
-        
+        DotMatrix matrix = new DotMatrix();
+        matrix.loadAlphabets("alphabets.txt");
         boolean stop = false;
         Scanner scanner = new Scanner(System.in);
         
@@ -55,7 +58,6 @@ public class DisplayEditor
         {
             System.out.println("Enter commands (? for help)>");
             String input = scanner.nextLine();
-            
             String remainder = null;
             
             if(input.length() > 0) 
@@ -86,36 +88,115 @@ public class DisplayEditor
                         break;
                         
                     case 's':
+                    	if( loop.size() == 0)
+                    		System.out.println("No messages to save"); //yea don't know how to use printwriter
                         break;
                         
                     case 'n':
+                    	if( loop.size() == 0)
+                    		System.out.println("No messages");
+                    	loop.forward();
+                    	System.out.println(loop.getCurrent()); 
+                    	//need to add display settings
+                    	//need to add dotmatrix data
                         break;
                         
                     case 'x':
+                    	if( loop.size() == 0)
+                    		System.out.println("No messages");
+                    	loop.removeCurrent();
+                    	if(loop.size() == 0)
+                    		System.out.println("No messages");
+                    	else
+                    	{
+                    		loop.forward();
+                    		System.out.println(loop.getCurrent());
+                    	}
+                    	//complete
                         break;
                         
-                    case 'c':
+                    case 'c': //lol don't understand
+                    	
                         break;
                         
                     case 'l':
+                    	if( loop.size() == 0)
+                    		System.out.println("No messages");
                         break;
                         
                     case 'p':
+                    	if( loop.size() == 0)
+                    		System.out.println("No messages");
+                    	loop.back();
+                    	System.out.println(loop.getCurrent()); 
+                    	//need to add display settings
+                    	//need to add dotmatrix data
                         break;
                         
                     case 'a':
+                    	if( loop.size() == 0)
+                    	{
+                    		List<String> add = new ArrayList<String>();
+                    		String s = input.substring(1);
+                    		s.trim();
+                      		for (int x = 0; x < s.length(); x++)
+                      		{
+                      			add.add(s.charAt(x)); 
+                      			//why doesn't this work? incomplete 
+                      		}
+                      	// make array, split string into char, check for exceptions, run through it, add dot matrix data						  					  	    	  
+                    	}
                         break;
                         
                     case 'r':
-                        break;
+                    	if( loop.size() == 0)
+                    		System.out.println("No messages");
+                    	String temp = input.substring(1);
+                    	temp.trim();
+                    	loop.addAfter(temp);
+                    	loop.back();
+                    	loop.removeCurrent(); 
+                    	//need to add display settings
+                    	//need to add dotmatrix data                        
+                    	break;
                         
                     case 'd':
+                    	if( loop.size() == 0)
+                    		System.out.println("No messages"); //need add display settings
                         break;
                         
                     case 'j':
+                    	if( loop.size() == 0)
+                    		System.out.println("No messages");
+                    	String integer = input.substring(1);
+                    	integer.trim();
+                    	int jump = Integer.parseInt(integer);
+                    	if (jump < 0)
+                    	{
+                    		for (int x = 0; x < jump; x++)
+                    		{
+                    			loop.back();
+                    		}
+                    	}
+                    	else 
+                    	{
+                    		for (int x = 0; x < jump; x++)
+                    		{
+                    			loop.forward();
+                    		}
+                    	}
+                    	System.out.println(loop.getCurrent()); //complete	                    		
                         break;
                         
                     case 'i':
+                    	if( loop.size() == 0)
+                    		System.out.println("No messages");
+                    	List<String> names = new ArrayList<String>();
+                    	/*unfinished
+                    	 *make array to store all the characters
+                    	 *add into loop with prev()
+                    	 *print out with special display settings
+                    	 */
                         break;
                         
                     case 'q':
@@ -125,7 +206,7 @@ public class DisplayEditor
                     
                     default:
                         System.out.println("Invalid command!");
-                        break;
+                        main(args);
                 }
             }
         }
