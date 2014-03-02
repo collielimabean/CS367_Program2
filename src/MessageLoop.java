@@ -40,9 +40,13 @@ public class MessageLoop<E> implements LoopADT<E>
     /**
      * Adds an item before the current node in the MessageLoop.
      * @param item that will be added to the MessageLoop
+     * @throws IllegalArgumentException if item is null
      */
     public void addBefore(E item) 
-    {        
+    {
+        if(item == null)
+            throw new IllegalArgumentException();
+        
         //if current null, initialize the new item as the only element
     	if (current == null)
     	{
@@ -64,9 +68,13 @@ public class MessageLoop<E> implements LoopADT<E>
     /**
      * Adds an item after the current node in the MessageLoop.
      * @param item that will be added to the MessageLoop
+     * @throws IllegalArgumentException if item is null
      */
     public void addAfter(E item) 
     {
+        if(item == null)
+            throw new IllegalArgumentException();
+        
         //if current null, initialize the new item as the only element
         if (current == null)
         {

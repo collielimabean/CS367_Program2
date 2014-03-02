@@ -30,6 +30,122 @@ import java.util.Scanner;
 public class DisplayEditor
 {
     
+    private MessageLoop<String> loop;
+    private DotMatrix matrix;
+    
+    public DisplayEditor(MessageLoop<String> loop, String alphabetPath)
+    {
+        //null checks?
+        
+        this.loop = loop;
+        
+        matrix = new DotMatrix();
+        matrix.loadAlphabets(alphabetPath);
+    }
+    
+    public boolean loopIsEmpty()
+    {
+        if(loop.size() <= 0)
+            return true;
+        
+        return false;
+    }
+    
+    public void displayLoop()
+    {
+        
+    }
+        
+    public void printCurrentContext()
+    {
+        
+    }
+    
+    public boolean loadData(String loadPath)
+    {
+        return true;
+    }
+    
+    public boolean saveData(String savePath)
+    {
+        return true;
+    }
+    
+    public void addAfter(String message)
+    {
+        if(loop.size() == 0)
+        {
+            List<String> add = new ArrayList<String>();
+            for (int x = 0; x < message.length(); x++)
+            {
+                add.add(Character.toString(message.charAt(x))); 
+                //why doesn't this work? incomplete 
+            }
+        // make array, split string into char, check for exceptions, run through it, add dot matrix data                                                          
+        }
+    }
+    
+    public void addBefore(String message)
+    {
+        List<String> names = new ArrayList<String>();
+        /*unfinished
+         *make array to store all the characters
+         *add into loop with prev()
+         *print out with special display settings
+         */
+    }
+    
+    public boolean removeCurrent()
+    {
+        if(loopIsEmpty())
+            return true;
+        
+        loop.removeCurrent();
+        loop.forward();
+        
+        if(loopIsEmpty())
+            return true;
+        
+        return false;
+    }
+    
+    public boolean traverseLoop(int steps)
+    {
+        if(loopIsEmpty()) 
+        {
+            //print no messages
+            return false;
+        }          
+        
+        if(Math.abs(steps) > loop.size())
+            steps = steps % loop.size();
+        
+        for(int i = 0; i < Math.abs(steps); i++)
+        {
+            if(steps > 0)
+                loop.forward();
+            
+            else loop.back();
+        }
+        
+        return true;
+    }
+    
+    public boolean replaceCurrent(String replace)
+    {
+        if(!matrix.isValidCharacter(replace))
+        {
+            //Print invalid
+            return false;
+        }
+            
+        loop.addAfter(replace);
+        loop.back();
+        loop.removeCurrent(); 
+        
+        return true;
+    }
+    
     /**
      * Entry point for this program.
      * @param args Contains Command-line arguments
@@ -45,12 +161,12 @@ public class DisplayEditor
         
         else
         {
-         //not sure what to put here  
+            //not sure what to put here  
         }
         
-        MessageLoop<String> loop = new MessageLoop<String>();
-        DotMatrix matrix = new DotMatrix();
-        matrix.loadAlphabets("alphabets.txt");
+        DisplayEditor editor = new DisplayEditor(new MessageLoop<String>(),
+                                                    "alphabets.txt");
+        
         boolean stop = false;
         Scanner scanner = new Scanner(System.in);
         
@@ -88,115 +204,71 @@ public class DisplayEditor
                         break;
                         
                     case 's':
-                    	if( loop.size() == 0)
-                    		System.out.println("No messages to save"); //yea don't know how to use printwriter
+                        editor.saveData(remainder.trim());
                         break;
                         
                     case 'n':
-                    	if( loop.size() == 0)
-                    		System.out.println("No messages");
-                    	loop.forward();
-                    	System.out.println(loop.getCurrent()); 
-                    	//need to add display settings
-                    	//need to add dotmatrix data
+                        boolean traversed = editor.traverseLoop(1);
+                        
+                        if(traversed)
+                            editor.printCurrentContext();
+                        
                         break;
                         
                     case 'x':
-                    	if( loop.size() == 0)
-                    		System.out.println("No messages");
-                    	loop.removeCurrent();
-                    	if(loop.size() == 0)
-                    		System.out.println("No messages");
-                    	else
-                    	{
-                    		loop.forward();
-                    		System.out.println(loop.getCurrent());
-                    	}
-                    	//complete
+                        boolean isEmpty = editor.removeCurrent();
+                        
+                        if(isEmpty)
+                            editor.printCurrentContext();
+                        
+                        else System.out.println("No messages");
+                       
                         break;
                         
-                    case 'c': //lol don't understand
-                    	
+                    case 'c': 
+                    	editor.printCurrentContext();
                         break;
                         
                     case 'l':
-                    	if( loop.size() == 0)
-                    		System.out.println("No messages");
+                    	editor.loadData(remainder);
                         break;
                         
                     case 'p':
-                    	if( loop.size() == 0)
-                    		System.out.println("No messages");
-                    	loop.back();
-                    	System.out.println(loop.getCurrent()); 
-                    	//need to add display settings
-                    	//need to add dotmatrix data
+                        boolean moved = editor.traverseLoop(-1);
+                        
+                        if(moved)
+                            editor.printCurrentContext();
+                        
                         break;
                         
                     case 'a':
-                    	if( loop.size() == 0)
-                    	{
-                    		List<String> add = new ArrayList<String>();
-                    		String s = input.substring(1);
-                    		s.trim();
-                      		for (int x = 0; x < s.length(); x++)
-                      		{
-                      			add.add(s.charAt(x)); 
-                      			//why doesn't this work? incomplete 
-                      		}
-                      	// make array, split string into char, check for exceptions, run through it, add dot matrix data						  					  	    	  
-                    	}
+                        editor.addAfter(remainder);
                         break;
                         
                     case 'r':
-                    	if( loop.size() == 0)
-                    		System.out.println("No messages");
-                    	String temp = input.substring(1);
-                    	temp.trim();
-                    	loop.addAfter(temp);
-                    	loop.back();
-                    	loop.removeCurrent(); 
-                    	//need to add display settings
-                    	//need to add dotmatrix data                        
+                        editor.replaceCurrent(remainder.substring(0, 1));
+                        
+                    	if(editor.loopIsEmpty())
+                    	    System.out.println("no messages");
+                    	
                     	break;
                         
                     case 'd':
-                    	if( loop.size() == 0)
-                    		System.out.println("No messages"); //need add display settings
+                    	editor.displayLoop();
                         break;
                         
                     case 'j':
-                    	if( loop.size() == 0)
-                    		System.out.println("No messages");
-                    	String integer = input.substring(1);
-                    	integer.trim();
-                    	int jump = Integer.parseInt(integer);
-                    	if (jump < 0)
-                    	{
-                    		for (int x = 0; x < jump; x++)
-                    		{
-                    			loop.back();
-                    		}
-                    	}
-                    	else 
-                    	{
-                    		for (int x = 0; x < jump; x++)
-                    		{
-                    			loop.forward();
-                    		}
-                    	}
-                    	System.out.println(loop.getCurrent()); //complete	                    		
+                        boolean stateChanged = editor.traverseLoop(
+                                            Integer.parseInt(remainder.trim()));
+                        
+                        if(stateChanged)
+                            editor.printCurrentContext();
+                        
                         break;
                         
                     case 'i':
-                    	if( loop.size() == 0)
-                    		System.out.println("No messages");
-                    	List<String> names = new ArrayList<String>();
-                    	/*unfinished
-                    	 *make array to store all the characters
-                    	 *add into loop with prev()
-                    	 *print out with special display settings
-                    	 */
+                        editor.addBefore(remainder.trim());
+                        editor.printCurrentContext();
                         break;
                         
                     case 'q':
@@ -210,7 +282,6 @@ public class DisplayEditor
                 }
             }
         }
-        
         scanner.close();
     }
 }
