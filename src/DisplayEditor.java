@@ -19,13 +19,14 @@
 // Lecturer's Name:  Professor Jim Skrentny
 //////////////////////////// 80 columns wide //////////////////////////////////
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 /**
- * This class provides an entry point for the user to perform operations on
- * a text-file containing a dot-matrix.
+ * This wrapper class exposes methods to operate on a DotMatrix. This class 
+ * provides an entry point for the user to operate on a DotMatrix.
  */
 public class DisplayEditor
 {
@@ -33,6 +34,11 @@ public class DisplayEditor
     private MessageLoop<String> loop;
     private DotMatrix matrix;
     
+    /**
+     * Constructs a DisplayEditor object.
+     * @param loop MessageLoop containing DotMatrix strings
+     * @param alphabetPath Path to an alphabet to provide appropriate mappings.
+     */
     public DisplayEditor(MessageLoop<String> loop, String alphabetPath)
     {
         //null checks?
@@ -43,6 +49,10 @@ public class DisplayEditor
         matrix.loadAlphabets(alphabetPath);
     }
     
+    /**
+     * Returns whether the loop has no elements or not.
+     * @return true if message loop is empty
+     */
     public boolean loopIsEmpty()
     {
         if(loop.size() <= 0)
@@ -51,69 +61,133 @@ public class DisplayEditor
         return false;
     }
     
+    /**
+     * Displays every element in the MessageLoop.
+     */
     public void displayLoop()
     {
         
     }
-        
+    
+    /**
+     * Displays the context of the current element.
+     * i.e. display previous, current, and then next element.
+     */
     public void printCurrentContext()
     {
         
     }
     
+    /**
+     * Loads a text file containing DotMatrix strings into the MessageLoop.
+     * @param loadPath
+     * @return true if load successful, false otherwise
+     */
     public boolean loadData(String loadPath)
     {
+        File load = new File(loadPath);
+        
+        if(!load.exists() || !load.canRead())
+        {
+            System.out.println("unable to load");
+            return false;
+        }
+        
+        //TODO load file
+            
         return true;
     }
     
+    /**
+     * Saves the current MessageLoop into a text file with the specified path.
+     * @param savePath 
+     * @return true if successful, false otherwise.
+     */
     public boolean saveData(String savePath)
     {
+        File output = new File(savePath);
+        
+        if(output.exists())
+            System.out.println("warning: file already exists" 
+                                  + ", will be overwritten");
+        
+        if(!output.canWrite())
+        {
+            System.out.println("unable to save");
+            return false;
+        }
+        
+        //TODO Write file.
+            
         return true;
     }
     
-    public void addAfter(String message)
+    /**
+     * Adds the specified message into the MessageLoop
+     * after the current element. Adds no elements if invalid chars found.
+     * @param message Requested stream of characters to add after current.
+     * @return true if no invalid characters found, false otherwise
+     */
+    public boolean addAfter(String message)
     {
+        //TODO check for invalid chars!
         if(loop.size() == 0)
         {
             List<String> add = new ArrayList<String>();
             for (int x = 0; x < message.length(); x++)
             {
                 add.add(Character.toString(message.charAt(x))); 
-                //why doesn't this work? incomplete 
             }
         // make array, split string into char, check for exceptions, run through it, add dot matrix data                                                          
         }
+        
+        return true; //TODO Return properly
     }
     
-    public void addBefore(String message)
+    /**
+     * Adds the specified message into the MessageLoop
+     * before the current element. Adds no elements if invalid chars found.
+     * @param message Requested stream of characters to add before current.
+     * @return true if no invalid characters found, false otherwise
+     */
+    public boolean addBefore(String message)
     {
+        //TODO Check for invalid chars!
         List<String> names = new ArrayList<String>();
-        /*unfinished
+        /*TODO unfinished
          *make array to store all the characters
          *add into loop with prev()
          *print out with special display settings
          */
+        
+        return true; //TODO return properly
     }
     
-    public boolean removeCurrent()
+    /**
+     * Removes the current DotMatrix string in the loop.
+     * Returns if no elements to remove.
+     */
+    public void removeCurrent()
     {
         if(loopIsEmpty())
-            return true;
+            return;
         
         loop.removeCurrent();
         loop.forward();
-        
-        if(loopIsEmpty())
-            return true;
-        
-        return false;
     }
     
+    /**
+     * Traverses the MessageLoop. A negative step indicates backward movement,
+     * and a positive step indicates forward movement.
+     * @param steps <p>An integer that specifies how many steps to go; 
+     * Positive indicates forward, negative backward.</p>
+     * @return true if loop traversed, false otherwise
+     */
     public boolean traverseLoop(int steps)
     {
         if(loopIsEmpty()) 
         {
-            //print no messages
+            //TODO print no messages
             return false;
         }          
         
@@ -131,14 +205,25 @@ public class DisplayEditor
         return true;
     }
     
+    /**
+     * Replaces the current DotMatrix Character with a new one.
+     * @param replace The DotMatrix character to replace Current.
+     * @return true if successful replacement, false otherwise.
+     */
     public boolean replaceCurrent(String replace)
     {
-        if(!matrix.isValidCharacter(replace))
+        if(loopIsEmpty())
         {
-            //Print invalid
+            //TODO Print no messages
             return false;
         }
-            
+        
+        if(!matrix.isValidCharacter(replace))
+        {
+            //TODO Print invalid
+            return false;
+        }
+        
         loop.addAfter(replace);
         loop.back();
         loop.removeCurrent(); 
@@ -161,7 +246,7 @@ public class DisplayEditor
         
         else
         {
-            //not sure what to put here  
+            //TODO handle 0 arguments
         }
         
         DisplayEditor editor = new DisplayEditor(new MessageLoop<String>(),
@@ -242,7 +327,11 @@ public class DisplayEditor
                         break;
                         
                     case 'a':
-                        editor.addAfter(remainder);
+                        boolean noInvalidChars = editor.addAfter(remainder);
+                        
+                        if(noInvalidChars)
+                            editor.printCurrentContext();
+                        
                         break;
                         
                     case 'r':
