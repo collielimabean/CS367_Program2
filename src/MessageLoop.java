@@ -50,7 +50,9 @@ public class MessageLoop<E> implements LoopADT<E>
         //if current null, initialize the new item as the only element
     	if (current == null)
     	{
-    		current = new DblListNode<E>(item, current, current);
+    		current = new DblListNode<E>(item);
+            current.setNext(current);
+            current.setPrevious(current);
     		numItems++;
     		return;
     	}	
@@ -78,7 +80,9 @@ public class MessageLoop<E> implements LoopADT<E>
         //if current null, initialize the new item as the only element
         if (current == null)
         {
-            current = new DblListNode<E>(item, current, current);
+            current = new DblListNode<E>(item);
+            current.setNext(current);
+            current.setPrevious(current);
             numItems++;
             return;
         }   

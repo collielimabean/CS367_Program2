@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                   ALL STUDENTS COMPLETE THESE SECTIONS
-// Title:            DisplayEditor.java
+// Title:            Displayjava
 // Files:            DblListNode.java, MessageLoop.java,
 //                   MessageLoopIterator.java, EmptyLoopException.java
 //                   UnrecognizedCharacterException.java
@@ -20,7 +20,10 @@
 //////////////////////////// 80 columns wide //////////////////////////////////
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -30,30 +33,20 @@ import java.util.Scanner;
  */
 public class DisplayEditor
 {
+    static final String NO_MESSAGES = "no messages";
     
-    private MessageLoop<String> loop;
-    private DotMatrix matrix;
+    static final String MATRIX_OFFLINE_SEPARATOR = "#";
+    static final String LOOP_SEPARATOR = "*";
+    static final int NUMBER_SEPARATORS = 10;
     
-    /**
-     * Constructs a DisplayEditor object.
-     * @param loop MessageLoop containing DotMatrix strings
-     * @param alphabetPath Path to an alphabet to provide appropriate mappings.
-     */
-    public DisplayEditor(MessageLoop<String> loop, String alphabetPath)
-    {
-        //null checks?
-        
-        this.loop = loop;
-        
-        matrix = new DotMatrix();
-        matrix.loadAlphabets(alphabetPath);
-    }
+    static MessageLoop<ArrayList<String>> loop;
+    static DotMatrix matrix;
     
     /**
      * Returns whether the loop has no elements or not.
      * @return true if message loop is empty
      */
-    public boolean loopIsEmpty()
+    static boolean loopIsEmpty()
     {
         if(loop.size() <= 0)
             return true;
@@ -64,18 +57,92 @@ public class DisplayEditor
     /**
      * Displays every element in the MessageLoop.
      */
-    public void displayLoop()
+    static void displayLoop()
     {
+        if(loopIsEmpty())
+        {
+            System.out.println(NO_MESSAGES);
+            return;
+        }
         
+        Iterator<ArrayList<String>> it = loop.iterator();
+        
+        int counter = 0;
+        
+        while(it.hasNext() && counter < loop.size())
+        {
+            List<String> data = it.next();
+            
+            for(String s : data)
+                System.out.println(s);
+            
+            printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
+            
+            counter++;
+        }
     }
     
     /**
      * Displays the context of the current element.
      * i.e. display previous, current, and then next element.
      */
-    public void printCurrentContext()
+    static void printCurrentContext()
     {
-        
+        switch(loop.size())
+        {
+            case 0:
+                return;
+                
+            case 1:
+                printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
+                
+                ArrayList<String> list = loop.getCurrent();
+                
+                for(String s : list)
+                    System.out.println(s);
+                
+                printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
+                
+                return;
+            case 2:
+                printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
+                
+                ArrayList<String> list1 = loop.getCurrent();
+               
+                for(String s : list1)
+                    System.out.println(s);
+                
+                printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
+                
+                loop.forward();
+                
+                ArrayList<String> list2 = loop.getCurrent();
+                
+                for(String s : list2)
+                    System.out.println(s);
+                
+                return;
+            default:
+                loop.back();
+                
+                for(int i = 0; i < 3; i++)
+                {
+                    ArrayList<String> list3 = loop.getCurrent();
+                    
+                    for(String s : list3)
+                        System.out.println(s);
+                    
+                    if(i < 2)
+                    {
+                        loop.forward();
+                        printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
+                    }
+                }
+                
+                loop.back();
+                
+                return;
+        }
     }
     
     /**
@@ -83,7 +150,7 @@ public class DisplayEditor
      * @param loadPath
      * @return true if load successful, false otherwise
      */
-    public boolean loadData(String loadPath)
+    static boolean loadData(String loadPath)
     {
         File load = new File(loadPath);
         
@@ -93,7 +160,36 @@ public class DisplayEditor
             return false;
         }
         
-        //TODO load file
+        try 
+        {
+            Scanner scan = new Scanner(load);
+            ArrayList<String> input = new ArrayList<String>();
+            
+            while(scan.hasNextLine())
+            {
+                String line = scan.nextLine();
+                
+                if(line.contains(MATRIX_OFFLINE_SEPARATOR))
+                {
+                    loop.addAfter(input);
+                    loop.forward();
+                    input = new ArrayList<String>();
+                }
+                
+                else input.add(line);
+            }
+            
+            loop.forward();
+            
+            scan.close();
+            
+        } 
+        
+        catch (FileNotFoundException e)
+        {
+            System.out.println("unable to load");
+            return false;
+        }
             
         return true;
     }
@@ -103,22 +199,52 @@ public class DisplayEditor
      * @param savePath 
      * @return true if successful, false otherwise.
      */
-    public boolean saveData(String savePath)
+    static boolean saveData(String savePath)
     {
+        if(loopIsEmpty())
+        {
+            System.out.println("no messages to save");
+            return false;
+        }
+        
         File output = new File(savePath);
         
         if(output.exists())
             System.out.println("warning: file already exists" 
                                   + ", will be overwritten");
+       
+        try 
+        {
+            PrintWriter writer = new PrintWriter(output);
+            
+            Iterator<ArrayList<String>> it = loop.iterator();
+            
+            int count = 0;
+            
+            while(it.hasNext() && (count < loop.size()))
+            {
+                ArrayList<String> list = it.next();
+                
+                for(String s : list)
+                    writer.println(s);
+                
+                for(int i = 0; i < 10; i++)
+                    writer.print(MATRIX_OFFLINE_SEPARATOR);
+                
+                writer.println();
+                
+                count++;
+            }
+            
+            writer.close();
+        } 
         
-        if(!output.canWrite())
+        catch (FileNotFoundException e) 
         {
             System.out.println("unable to save");
             return false;
         }
         
-        //TODO Write file.
-            
         return true;
     }
     
@@ -128,20 +254,41 @@ public class DisplayEditor
      * @param message Requested stream of characters to add after current.
      * @return true if no invalid characters found, false otherwise
      */
-    public boolean addAfter(String message)
+    static boolean addAfter(String message)
     {
-        //TODO check for invalid chars!
-        if(loop.size() == 0)
+        for(int i = 0; i < message.length(); i++)
         {
-            List<String> add = new ArrayList<String>();
-            for (int x = 0; x < message.length(); x++)
+            if(!matrix.isValidCharacter(message.substring(i, i + 1)))
             {
-                add.add(Character.toString(message.charAt(x))); 
+                System.out.println("An unrecognized character" 
+                                        +  "has been entered.");
+                return false;
             }
-        // make array, split string into char, check for exceptions, run through it, add dot matrix data                                                          
         }
         
-        return true; //TODO Return properly
+        if(loop.size() == 0)
+        {
+            for(int i = 0; i < message.length(); i++)
+            {
+                ArrayList<String> addition = new ArrayList<String>(
+                        matrix.getDotMatrix(message.substring(i , i + 1)));
+
+                loop.addAfter(addition);
+                loop.forward();
+            }
+            
+            return true;
+        }
+        
+        for(int i = 0; i < message.length(); i++)
+        {
+            ArrayList<String> addition = new ArrayList<String>(
+                    matrix.getDotMatrix(message.substring(i , i + 1)));
+
+            loop.addAfter(addition);
+        }
+        
+        return true;
     }
     
     /**
@@ -150,27 +297,54 @@ public class DisplayEditor
      * @param message Requested stream of characters to add before current.
      * @return true if no invalid characters found, false otherwise
      */
-    public boolean addBefore(String message)
+    static boolean addBefore(String message)
     {
-        //TODO Check for invalid chars!
-        List<String> names = new ArrayList<String>();
-        /*TODO unfinished
-         *make array to store all the characters
-         *add into loop with prev()
-         *print out with special display settings
-         */
+        for(int i = 0; i < message.length(); i++)
+        {
+            if(!matrix.isValidCharacter(message.substring(i, i + 1)))
+            {
+                System.out.println("An unrecognized character" 
+                                        +  "has been entered.");
+                return false;
+            }
+        }
         
-        return true; //TODO return properly
+        if(loop.size() == 0)
+        {
+            for(int i = 0; i < message.length(); i++)
+            {
+                ArrayList<String> addition = new ArrayList<String>(
+                        matrix.getDotMatrix(message.substring(i , i + 1)));
+
+                loop.addBefore(addition);
+                loop.back();
+            }
+            
+            return true;
+        }
+        
+        for(int i = 0; i < message.length(); i++)
+        {
+            ArrayList<String> addition = new ArrayList<String>(
+                    matrix.getDotMatrix(message.substring(i , i + 1)));
+
+            loop.addBefore(addition);
+        }
+        
+        return true;
     }
     
     /**
      * Removes the current DotMatrix string in the loop.
      * Returns if no elements to remove.
      */
-    public void removeCurrent()
+    static void removeCurrent()
     {
         if(loopIsEmpty())
+        {
+            System.out.println(NO_MESSAGES);
             return;
+        }
         
         loop.removeCurrent();
         loop.forward();
@@ -183,11 +357,11 @@ public class DisplayEditor
      * Positive indicates forward, negative backward.</p>
      * @return true if loop traversed, false otherwise
      */
-    public boolean traverseLoop(int steps)
+    static boolean traverseLoop(int steps)
     {
         if(loopIsEmpty()) 
         {
-            //TODO print no messages
+            System.out.println(NO_MESSAGES);
             return false;
         }          
         
@@ -210,11 +384,11 @@ public class DisplayEditor
      * @param replace The DotMatrix character to replace Current.
      * @return true if successful replacement, false otherwise.
      */
-    public boolean replaceCurrent(String replace)
+    static boolean replaceCurrent(String replace)
     {
         if(loopIsEmpty())
         {
-            //TODO Print no messages
+            System.out.println(NO_MESSAGES);
             return false;
         }
         
@@ -224,11 +398,18 @@ public class DisplayEditor
             return false;
         }
         
-        loop.addAfter(replace);
+        loop.addAfter(new ArrayList<String>(matrix.getDotMatrix(replace)));
         loop.back();
         loop.removeCurrent(); 
         
         return true;
+    }
+    
+    static void printSeparator(String separator, int times)
+    {
+        for(int i = 0; i < times; i++)
+            System.out.print(separator);
+        System.out.println();
     }
     
     /**
@@ -249,18 +430,20 @@ public class DisplayEditor
             //TODO handle 0 arguments
         }
         
-        DisplayEditor editor = new DisplayEditor(new MessageLoop<String>(),
-                                                    "alphabets.txt");
+        loop = new MessageLoop<ArrayList<String>>();
+        matrix = new DotMatrix();
+        matrix.loadAlphabets("alphabets.txt");
         
         boolean stop = false;
         Scanner scanner = new Scanner(System.in);
         
         while (!stop) 
         {
-            System.out.println("Enter commands (? for help)>");
+            System.out.print("enter command (? for help)> ");
             String input = scanner.nextLine();
             String remainder = null;
             
+            //TODO Implement handling of invalid commands.
             if(input.length() > 0) 
             {
                 char option = input.charAt(0);
@@ -270,7 +453,6 @@ public class DisplayEditor
                     remainder = input.substring(1).trim();
                 }
                 
-                //TODO Implement command options
                 switch(option)
                 {
                     case '?':
@@ -289,84 +471,84 @@ public class DisplayEditor
                         break;
                         
                     case 's':
-                        editor.saveData(remainder.trim());
+                        saveData(remainder.trim());
                         break;
                         
                     case 'n':
-                        boolean traversed = editor.traverseLoop(1);
+                        boolean traversed = traverseLoop(1);
                         
                         if(traversed)
-                            editor.printCurrentContext();
+                            printCurrentContext();
                         
                         break;
                         
                     case 'x':
-                        boolean isEmpty = editor.removeCurrent();
+                        removeCurrent();
                         
-                        if(isEmpty)
-                            editor.printCurrentContext();
+                        if(!loopIsEmpty())
+                            printCurrentContext();
                         
-                        else System.out.println("No messages");
-                       
                         break;
                         
                     case 'c': 
-                    	editor.printCurrentContext();
+                    	printCurrentContext();
                         break;
                         
                     case 'l':
-                    	editor.loadData(remainder);
+                    	loadData(remainder);
                         break;
                         
                     case 'p':
-                        boolean moved = editor.traverseLoop(-1);
+                        boolean moved = traverseLoop(-1);
                         
                         if(moved)
-                            editor.printCurrentContext();
+                            printCurrentContext();
                         
                         break;
                         
                     case 'a':
-                        boolean noInvalidChars = editor.addAfter(remainder);
+                        boolean noInvalidChars = addAfter(remainder);
                         
                         if(noInvalidChars)
-                            editor.printCurrentContext();
+                            printCurrentContext();
                         
                         break;
                         
                     case 'r':
-                        editor.replaceCurrent(remainder.substring(0, 1));
+                        replaceCurrent(remainder.substring(0, 1));
                         
-                    	if(editor.loopIsEmpty())
-                    	    System.out.println("no messages");
+                    	if(loopIsEmpty())
+                    	    System.out.println(NO_MESSAGES);
+                    	
+                    	else printCurrentContext();
                     	
                     	break;
                         
                     case 'd':
-                    	editor.displayLoop();
+                    	displayLoop();
                         break;
                         
                     case 'j':
-                        boolean stateChanged = editor.traverseLoop(
+                        boolean stateChanged = traverseLoop(
                                             Integer.parseInt(remainder.trim()));
                         
                         if(stateChanged)
-                            editor.printCurrentContext();
+                            printCurrentContext();
                         
                         break;
                         
                     case 'i':
-                        editor.addBefore(remainder.trim());
-                        editor.printCurrentContext();
+                        addBefore(remainder.trim());
+                        printCurrentContext();
                         break;
                         
                     case 'q':
                         stop = true;
-                        System.out.println("Quitting...");
+                        System.out.println("quit");
                         break;
                     
                     default:
-                        System.out.println("Invalid command!");
+                        System.out.println("invalid command");
                         main(args);
                 }
             }
