@@ -28,19 +28,38 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * This wrapper class exposes methods to operate on a DotMatrix. This class 
- * provides an entry point for the user to operate on a DotMatrix.
+ * TODO More descriptive class documentation
+ * This class provides an entry point for the user to operate on a DotMatrix.
  */
 public class DisplayEditor
 {
+    /** A String containing the path to the alphabet for the DotMatrix */
+    static String ALPHABET_PATH = "";
+    
+    /** A String containing the "no messages" display.*/
     static final String NO_MESSAGES = "no messages";
     
+    /** A String containing the pattern to separate dot matrix chars
+     *  when serializing the MessageLoop.
+     */
     static final String MATRIX_OFFLINE_SEPARATOR = "#";
+    
+    /** A String containing the pattern to separate dot matrix chars
+     *  when displaying the MessageLoop in the console.
+     */
     static final String LOOP_SEPARATOR = "*";
+    
+    /** An integer specifying how many times to print the separator pattern. */
     static final int NUMBER_SEPARATORS = 10;
     
-    static MessageLoop<ArrayList<String>> loop;
-    static DotMatrix matrix;
+    /** A Scanner that will process any input in DisplayEditor */
+    private static Scanner scanner;
+    
+    /** A MessageLoop of DotMatrix (ArrayList<String>) characters. */
+    private static MessageLoop<ArrayList<String>> loop;
+    
+    /** A DotMatrix object to verify characters and load the alphabet.*/
+    private static DotMatrix matrix;
     
     /**
      * Returns whether the loop has no elements or not.
@@ -104,6 +123,7 @@ public class DisplayEditor
                 printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
                 
                 return;
+                
             case 2:
                 printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
                 
@@ -122,6 +142,7 @@ public class DisplayEditor
                     System.out.println(s);
                 
                 return;
+                
             default:
                 loop.back();
                 
@@ -153,12 +174,6 @@ public class DisplayEditor
     static boolean loadData(String loadPath)
     {
         File load = new File(loadPath);
-        
-        if(!load.exists() || !load.canRead())
-        {
-            System.out.println("unable to load");
-            return false;
-        }
         
         try 
         {
@@ -256,6 +271,7 @@ public class DisplayEditor
      */
     static boolean addAfter(String message)
     {
+        //Verify that every character in message is valid
         for(int i = 0; i < message.length(); i++)
         {
             if(!matrix.isValidCharacter(message.substring(i, i + 1)))
@@ -303,7 +319,7 @@ public class DisplayEditor
         {
             if(!matrix.isValidCharacter(message.substring(i, i + 1)))
             {
-                System.out.println("An unrecognized character" 
+                System.out.println("An unrecognized character " 
                                         +  "has been entered.");
                 return false;
             }
@@ -347,7 +363,14 @@ public class DisplayEditor
         }
         
         loop.removeCurrent();
-        loop.forward();
+        
+        if(loopIsEmpty())
+        {
+            System.out.println(NO_MESSAGES);
+            return;
+        }
+        
+        else loop.forward();
     }
     
     /**
@@ -381,7 +404,8 @@ public class DisplayEditor
     
     /**
      * Replaces the current DotMatrix Character with a new one.
-     * @param replace The DotMatrix character to replace Current.
+     * This method also assumes that the input string has length 1.
+     * @param replace A one character String to replace the current char.
      * @return true if successful replacement, false otherwise.
      */
     static boolean replaceCurrent(String replace)
@@ -394,7 +418,8 @@ public class DisplayEditor
         
         if(!matrix.isValidCharacter(replace))
         {
-            //TODO Print invalid
+            System.out.println("An unrecognized character " 
+                    +  "has been entered.");
             return false;
         }
         
@@ -405,6 +430,12 @@ public class DisplayEditor
         return true;
     }
     
+    /**
+     * Prints a specified separator a specified number of times.
+     * e.g. printSeparator("$", 10) prints $$$$$$$$$$ and moves to a new line.
+     * @param separator A String containing a pattern to repeat
+     * @param times the number of times to repeat a pattern
+     */
     static void printSeparator(String separator, int times)
     {
         for(int i = 0; i < times; i++)
@@ -417,25 +448,52 @@ public class DisplayEditor
      * @param args Contains Command-line arguments
      */
     public static void main(String[] args)
-    {
+    {        
         //Check if valid number of command line arguments
-        if(args.length != 2 && args.length != 0)
+        if(args.length > 2 || args.length == 1)
         {
             System.out.println("Invalid command-line arguments.");
             return;
         }
         
-        else
+        else if(args.length == 0)
         {
-            //TODO handle 0 arguments
+            System.out.println("Enter the dot-matrix alphabets file:");
+            
+            scanner = new Scanner(System.in);
+            
+            ALPHABET_PATH = scanner.nextLine();
         }
         
+        else
+        {
+            ALPHABET_PATH = args[1];
+            
+            File commandFile = new File(args[0]);
+            
+            if(!commandFile.exists() || !commandFile.canRead())
+            {
+                System.err.println("Problem with input file!");
+                return;
+            }
+            
+            try
+            {
+                scanner = new Scanner(commandFile);
+            }
+            
+            catch(FileNotFoundException e)
+            {
+                System.err.println("Problem with input file!");
+                return;
+            }
+        }
+
         loop = new MessageLoop<ArrayList<String>>();
         matrix = new DotMatrix();
-        matrix.loadAlphabets("alphabets.txt");
+        matrix.loadAlphabets(ALPHABET_PATH);
         
         boolean stop = false;
-        Scanner scanner = new Scanner(System.in);
         
         while (!stop) 
         {
@@ -443,7 +501,6 @@ public class DisplayEditor
             String input = scanner.nextLine();
             String remainder = null;
             
-            //TODO Implement handling of invalid commands.
             if(input.length() > 0) 
             {
                 char option = input.charAt(0);
@@ -471,6 +528,7 @@ public class DisplayEditor
                         break;
                         
                     case 's':
+                        //TODO <CHAR> <SPACE> <STRING>
                         saveData(remainder.trim());
                         break;
                         
@@ -490,11 +548,12 @@ public class DisplayEditor
                         
                         break;
                         
-                    case 'c': 
+                    case 'c':
                     	printCurrentContext();
                         break;
                         
                     case 'l':
+                        //TODO <CHAR> <SPACE> <STRING>
                     	loadData(remainder);
                         break;
                         
@@ -507,6 +566,7 @@ public class DisplayEditor
                         break;
                         
                     case 'a':
+                        //TODO <CHAR> <SPACE> <STRING>
                         boolean noInvalidChars = addAfter(remainder);
                         
                         if(noInvalidChars)
@@ -515,6 +575,7 @@ public class DisplayEditor
                         break;
                         
                     case 'r':
+                      //TODO <CHAR> <SPACE> <CHAR>
                         replaceCurrent(remainder.substring(0, 1));
                         
                     	if(loopIsEmpty())
@@ -529,6 +590,7 @@ public class DisplayEditor
                         break;
                         
                     case 'j':
+                        //TODO <CHAR> <SPACE> <INTEGER>
                         boolean stateChanged = traverseLoop(
                                             Integer.parseInt(remainder.trim()));
                         
@@ -538,6 +600,7 @@ public class DisplayEditor
                         break;
                         
                     case 'i':
+                        //TODO <CHAR> <SPACE> <STRING>
                         addBefore(remainder.trim());
                         printCurrentContext();
                         break;
@@ -552,6 +615,9 @@ public class DisplayEditor
                         main(args);
                 }
             }
+            
+            //exit if empty command
+            else return;
         }
         scanner.close();
     }
