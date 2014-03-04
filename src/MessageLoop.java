@@ -48,7 +48,7 @@ public class MessageLoop<E> implements LoopADT<E>
             throw new IllegalArgumentException();
         
         //if current null, initialize the new item as the only element
-    	if (current == null)
+    	if (numItems == 0)
     	{
     		current = new DblListNode<E>(item);
             current.setNext(current);
@@ -78,7 +78,7 @@ public class MessageLoop<E> implements LoopADT<E>
             throw new IllegalArgumentException();
         
         //if current null, initialize the new item as the only element
-        if (current == null)
+        if (numItems == 0)
         {
             current = new DblListNode<E>(item);
             current.setNext(current);

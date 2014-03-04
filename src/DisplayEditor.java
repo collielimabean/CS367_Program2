@@ -52,8 +52,12 @@ public class DisplayEditor
     /** An integer specifying how many times to print the separator pattern. */
     static final int NUMBER_SEPARATORS = 10;
     
+    //TODO DOc
+    private static final char[] SINGLE_INPUT_COMMANDS = {'n', 'x', 'c', 'p'
+                                                            , 'd', 'q'};
+    
     private static final char[] ADDTL_INPUT_COMMANDS = {'s', 'l', 'a', 'i'
-                                                            , 'r', 'j'};
+                                                           , 'r', 'j'};
     
     /** A Scanner that will process any input in DisplayEditor */
     private static Scanner scanner;
@@ -65,23 +69,11 @@ public class DisplayEditor
     private static DotMatrix matrix;
     
     /**
-     * Returns whether the loop has no elements or not.
-     * @return true if message loop is empty
-     */
-    static boolean loopIsEmpty()
-    {
-        if(loop.size() <= 0)
-            return true;
-        
-        return false;
-    }
-    
-    /**
      * Displays every element in the MessageLoop.
      */
     static void displayLoop()
     {
-        if(loopIsEmpty())
+        if(loop.size() <= 0)
         {
             System.out.println(NO_MESSAGES);
             return;
@@ -222,7 +214,7 @@ public class DisplayEditor
      */
     static boolean saveData(String savePath)
     {
-        if(loopIsEmpty())
+        if(loop.size() <= 0)
         {
             System.out.println("no messages to save");
             return false;
@@ -295,7 +287,7 @@ public class DisplayEditor
 
             loop.addAfter(addition);
             loop.forward();
-        } //TODO FIX ME
+        }
         
         return true;
     }
@@ -324,10 +316,9 @@ public class DisplayEditor
                     matrix.getDotMatrix(message.substring(i , i + 1)));
             
             loop.addBefore(addition);
-            loop.back(); //TODO Fix me
+            loop.back();
         }
         
-        loop.back();
         return true;
     }
     
@@ -337,21 +328,20 @@ public class DisplayEditor
      */
     static void removeCurrent()
     {
-        if(loopIsEmpty())
+        if(loop.size() <= 0)
         {
             System.out.println(NO_MESSAGES);
             return;
         }
         
         loop.removeCurrent();
+        loop.back();
         
-        if(loopIsEmpty())
+        if(loop.size() <= 0)
         {
             System.out.println(NO_MESSAGES);
             return;
         }
-        
-        else loop.forward();
     }
     
     /**
@@ -363,7 +353,7 @@ public class DisplayEditor
      */
     static boolean traverseLoop(int steps)
     {
-        if(loopIsEmpty()) 
+        if(loop.size() <= 0) 
         {
             System.out.println(NO_MESSAGES);
             return false;
@@ -391,7 +381,7 @@ public class DisplayEditor
      */
     static boolean replaceCurrent(String replace)
     {
-        if(loopIsEmpty())
+        if(loop.size() <= 0)
         {
             System.out.println(NO_MESSAGES);
             return false;
@@ -406,12 +396,8 @@ public class DisplayEditor
         
         //remove the current item
         loop.removeCurrent(); 
-        
-        //because removeCurrent advances, we need to move back
-  //      loop.back();
-        
-        //TODO simplify into addBefore
         loop.addBefore(new ArrayList<String>(matrix.getDotMatrix(replace)));
+        loop.back();
         
         return true;
     }
@@ -471,14 +457,40 @@ public class DisplayEditor
         
         return pack;        
     }
+    
+    //TODO Document
+    static boolean isValidCommand(String input)
+    {
+        char command = input.charAt(0);
+        
+        //verify single 
+        for(char c : SINGLE_INPUT_COMMANDS)
+        {
+            if(command == c)
+            {
+                if(input.length() > 1)
+                    return false;
+                
+                else return true;                            
+            }
+        }
+        
+        for(char c : ADDTL_INPUT_COMMANDS)
+            if(command == c)
+                return isValidAdditionalInputCommand(input);
+        
+        return false;
+    }
+    
     /**
      * 
      * @param input
      * @return true if input is a valid command that requires additional inputs
      * or if input does not require additional inputs (e.g. x); false otherwise
      */
-    static boolean isValidAdditionalInputCommand(String input)
+    private static boolean isValidAdditionalInputCommand(String input)
     {
+        //TODO Elim redundant code
         char option = input.charAt(0);
         
         if(input.length() > 1) 
@@ -594,7 +606,7 @@ public class DisplayEditor
             
             if(input.length() > 0) 
             {
-                if(!isValidAdditionalInputCommand(input))
+                if(!isValidCommand(input))
                 {
                     System.out.println("invalid command");
                     continue;
@@ -631,7 +643,7 @@ public class DisplayEditor
                     case 'x':
                         removeCurrent();
                         
-                        if(!loopIsEmpty())
+                        if(loop.size() > 0)
                             printCurrentContext();
                         break;
                         
@@ -661,7 +673,7 @@ public class DisplayEditor
                     case 'r':
                         replaceCurrent(remainder.substring(0, 1));
                         
-                    	if(loopIsEmpty())
+                    	if(loop.size() <= 0)
                     	    System.out.println(NO_MESSAGES);
                     	
                     	else printCurrentContext();
@@ -681,8 +693,10 @@ public class DisplayEditor
                         break;
                         
                     case 'i':
-                        addBefore(remainder.trim());
-                        printCurrentContext();
+                        boolean noInvalid = addBefore(remainder.trim());
+                        
+                        if(noInvalid)
+                            printCurrentContext();
                         break;
                         
                     case 'q':
