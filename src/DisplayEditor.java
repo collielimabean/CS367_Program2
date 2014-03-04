@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * TODO More descriptive class documentation
  * This class provides an entry point for the user to operate on a DotMatrix.
  */
 public class DisplayEditor
@@ -52,10 +51,11 @@ public class DisplayEditor
     /** An integer specifying how many times to print the separator pattern. */
     static final int NUMBER_SEPARATORS = 10;
     
-    //TODO DOc
+    /** A char array specifying commands that should be alone (by itself) */ 
     private static final char[] SINGLE_INPUT_COMMANDS = {'n', 'x', 'c', 'p'
                                                             , 'd', 'q'};
     
+    /** A char array specifying commands that should have additional inputs */
     private static final char[] ADDTL_INPUT_COMMANDS = {'s', 'l', 'a', 'i'
                                                            , 'r', 'j'};
     
@@ -83,15 +83,13 @@ public class DisplayEditor
         
         int counter = 0;
         
+        //Iterate over each element and print associated data
         while(it.hasNext() && counter < loop.size())
         {
             List<String> data = it.next();
             
             for(String s : data)
-            {
                 System.out.println(s);
-            }
-
             System.out.println();
             
             counter++;
@@ -195,7 +193,6 @@ public class DisplayEditor
             loop.forward();
             
             scan.close();
-            
         } 
         
         catch (FileNotFoundException e)
@@ -274,7 +271,7 @@ public class DisplayEditor
         {
             if(!matrix.isValidCharacter(message.substring(i, i + 1)))
             {
-                System.out.println("An unrecognized character" 
+                System.out.println("An unrecognized character " 
                                         +  "has been entered.");
                 return false;
             }
@@ -286,7 +283,9 @@ public class DisplayEditor
                     matrix.getDotMatrix(message.substring(i , i + 1)));
 
             loop.addAfter(addition);
-            loop.forward();
+            
+            if(loop.size() != 0)
+                loop.forward();
         }
         
         return true;
@@ -316,7 +315,9 @@ public class DisplayEditor
                     matrix.getDotMatrix(message.substring(i , i + 1)));
             
             loop.addBefore(addition);
-            loop.back();
+            
+            if(loop.size() != 0)
+                loop.back();
         }
         
         return true;
@@ -335,7 +336,6 @@ public class DisplayEditor
         }
         
         loop.removeCurrent();
-        loop.back();
         
         if(loop.size() <= 0)
         {
@@ -415,20 +415,36 @@ public class DisplayEditor
         System.out.println();
     }
     
+    /**
+     * Removes trailing whitespace from a String.
+     * @param edit String to remove trailing whitespace
+     * @return String with trailing whitespace removed
+     */
     static String removeTrailingWhitespace(String edit)
     {
         String complete = "";
         int count;
         
         for(count = edit.length(); count > 0; count--)
-            if(!Character.isWhitespace(edit.substring(count - 1, count).charAt(0)))
+        {
+            char spaceCheck = edit.substring(count - 1, count).charAt(0);
+                    
+            if(!Character.isWhitespace(spaceCheck))
                 break;
-        
+        }
+
         complete = edit.substring(0, count);
         
         return complete;
     }
     
+    /**
+     * Splits a String command into its two components. The first component
+     * comprises of the command character (String length 1), and the second
+     * component is any other remaining data.
+     * @param input String command to split
+     * @return A string array [0 = command] [1 = remaining data]
+     */
     static String[] splitCommand(String input)
     {
         if(input.length() == 1)
@@ -458,7 +474,11 @@ public class DisplayEditor
         return pack;        
     }
     
-    //TODO Document
+    /**
+     * 
+     * @param input
+     * @return
+     */
     static boolean isValidCommand(String input)
     {
         char command = input.charAt(0);
@@ -493,26 +513,12 @@ public class DisplayEditor
         //TODO Elim redundant code
         char option = input.charAt(0);
         
-        if(input.length() > 1) 
+        if(input.length() > 1)
         {
-            boolean requiresSpace = false;
-            
-            for(char c : ADDTL_INPUT_COMMANDS)
-            {
-                if(option == c)
-                {
-                    requiresSpace = true;
-                    break;
-                }
-            }
-            
-            if(!requiresSpace)
-                return true;
-            
             if(!Character.isWhitespace(input.charAt(1)))
                 return false;
             
-            String seq = input.substring(1).trim();
+            String seq = removeTrailingWhitespace(input.substring(1));
             
             if(seq.length() > 1 && option == 'r')
                 return false;
@@ -534,10 +540,7 @@ public class DisplayEditor
             }
         }
         
-        else
-            for(char c : ADDTL_INPUT_COMMANDS)
-                if(option == c)
-                    return false;
+        else return false;
         
         return true;
     }
@@ -686,7 +689,7 @@ public class DisplayEditor
                         
                     case 'j':
                         boolean stateChanged = traverseLoop(
-                                            Integer.parseInt(remainder.trim()));
+                                           Integer.parseInt(remainder.trim()));
                         
                         if(stateChanged)
                             printCurrentContext();

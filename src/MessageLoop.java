@@ -57,7 +57,8 @@ public class MessageLoop<E> implements LoopADT<E>
     		return;
     	}	
     	
-    	DblListNode <E> newNode = new DblListNode<E> (item, current, current.getPrevious());
+    	DblListNode <E> newNode = new DblListNode<E> (item, current,
+    	                                                current.getPrevious());
     	
     	//Set appropriate references
         current.getPrevious().setNext(newNode);
@@ -87,7 +88,8 @@ public class MessageLoop<E> implements LoopADT<E>
             return;
         }   
         
-        DblListNode <E> newNode = new DblListNode<E> (item, current.getNext(), current);
+        DblListNode <E> newNode = new DblListNode<E> (item, current.getNext()
+                                                          , current);
         
         //Set appropriate references
         current.getNext().setPrevious(newNode);

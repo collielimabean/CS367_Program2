@@ -28,7 +28,7 @@ class DblListNode<E>
      * Default constructor. Initializes with null data, and references
      * are set to null.
      */
-    public DblListNode()
+    DblListNode()
     {
         this(null, null, null);
     }
@@ -38,7 +38,7 @@ class DblListNode<E>
      * references set to null.
      * @param data The object that the DblListNode will hold.
      */
-    public DblListNode(E data)
+    DblListNode(E data)
     {
         this(data, null, null);
     }
@@ -49,7 +49,7 @@ class DblListNode<E>
      * @param data The object that the DblListNode will hold.
      * @param next A DblListNode that will be next after this node
      */
-    public DblListNode(E data, DblListNode<E> next)
+    DblListNode(E data, DblListNode<E> next)
     {
         this(data, next, null);
     }
@@ -60,7 +60,7 @@ class DblListNode<E>
      * @param next A DblListNode that will be next after this node
      * @param previous A DblListNode that will be before this node
      */
-    public DblListNode(E data, DblListNode<E> next, DblListNode<E> previous)
+    DblListNode(E data, DblListNode<E> next, DblListNode<E> previous)
     {
         this.data = data;
         this.next = next;

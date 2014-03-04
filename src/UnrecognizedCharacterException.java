@@ -7,7 +7,7 @@
 // Author:           William Jen <wjen@wisc.edu>
 // CS Login:         jen
 // Lecturer's Name:  Professor Jim Skrentny
-//////////////////// PAIR PROGRAMMERS COMPLETE THIS SECTION ////////////////////
+//////////////////// PAIR PROGRAMMERS COMPLETE THIS SECTION ///////////////////
 //
 // Pair Partner:     Allen Hung
 // CS Login:         ahung
