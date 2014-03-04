@@ -53,7 +53,7 @@ public class DisplayEditor
     
     /** A char array specifying commands that should be alone (by itself) */ 
     private static final char[] SINGLE_INPUT_COMMANDS = {'n', 'x', 'c', 'p'
-                                                            , 'd', 'q'};
+                                                            , 'd', 'q', '?'};
     
     /** A char array specifying commands that should have additional inputs */
     private static final char[] ADDTL_INPUT_COMMANDS = {'s', 'l', 'a', 'i'
@@ -82,6 +82,8 @@ public class DisplayEditor
         Iterator<ArrayList<String>> it = loop.iterator();
         
         int counter = 0;
+        
+        System.out.println();
         
         //Iterate over each element and print associated data
         while(it.hasNext() && counter < loop.size())
@@ -510,7 +512,6 @@ public class DisplayEditor
      */
     private static boolean isValidAdditionalInputCommand(String input)
     {
-        //TODO Elim redundant code
         char option = input.charAt(0);
         
         if(input.length() > 1)
@@ -518,7 +519,7 @@ public class DisplayEditor
             if(!Character.isWhitespace(input.charAt(1)))
                 return false;
             
-            String seq = removeTrailingWhitespace(input.substring(1));
+            String seq = input.substring(1).trim();
             
             if(seq.length() > 1 && option == 'r')
                 return false;
@@ -618,18 +619,21 @@ public class DisplayEditor
                 switch(option)
                 {
                     case '?':
-                        System.out.println("s (save) \t l (load)" 
-                                            + "\t d (display)");
+                        System.out.println("s (save)" 
+                                            + "    l (load)" 
+                                            + "       d (display)");
                         
-                        System.out.println("n (next) \t p (previous)"
-                                            + "\t j (jump");
+                        System.out.println("n (next)" 
+                                            + "    p (previous)" 
+                                            + "   j (jump)");
                         
-                        System.out.println("x (delete) \t a (add after)"
-                                            + "\t i (insert before)");
+                        System.out.println("x (delete)" 
+                                            + "  a (add after)" 
+                                            + "  i (insert before)");
                         
-                        System.out.println("c (context) \t r (replace)"
-                                            + "\t q (quit)");
-                        
+                        System.out.println("c (context)" 
+                                            + " r (replace)" 
+                                            + "    q (quit)");
                         break;
                         
                     case 's':
