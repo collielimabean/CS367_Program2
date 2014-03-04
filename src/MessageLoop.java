@@ -111,7 +111,7 @@ public class MessageLoop<E> implements LoopADT<E>
     }
     
     /**
-     * Removes the current node from the MessageLoop.
+     * Removes the current node from the MessageLoop and advances.
      * @return the item being removed
      */
     public E removeCurrent() 

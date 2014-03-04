@@ -52,6 +52,9 @@ public class DisplayEditor
     /** An integer specifying how many times to print the separator pattern. */
     static final int NUMBER_SEPARATORS = 10;
     
+    private static final char[] ADDTL_INPUT_COMMANDS = {'s', 'l', 'a', 'i'
+                                                            , 'r', 'j'};
+    
     /** A Scanner that will process any input in DisplayEditor */
     private static Scanner scanner;
     
@@ -93,9 +96,11 @@ public class DisplayEditor
             List<String> data = it.next();
             
             for(String s : data)
+            {
                 System.out.println(s);
-            
-            printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
+            }
+
+            System.out.println();
             
             counter++;
         }
@@ -110,12 +115,13 @@ public class DisplayEditor
         switch(loop.size())
         {
             case 0:
+                System.out.println(NO_MESSAGES);
                 return;
                 
             case 1:
                 printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
                 
-                ArrayList<String> list = loop.getCurrent();
+                List<String> list = loop.getCurrent();
                 
                 for(String s : list)
                     System.out.println(s);
@@ -127,7 +133,7 @@ public class DisplayEditor
             case 2:
                 printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
                 
-                ArrayList<String> list1 = loop.getCurrent();
+                List<String> list1 = loop.getCurrent();
                
                 for(String s : list1)
                     System.out.println(s);
@@ -148,7 +154,7 @@ public class DisplayEditor
                 
                 for(int i = 0; i < 3; i++)
                 {
-                    ArrayList<String> list3 = loop.getCurrent();
+                    List<String> list3 = loop.getCurrent();
                     
                     for(String s : list3)
                         System.out.println(s);
@@ -282,27 +288,14 @@ public class DisplayEditor
             }
         }
         
-        if(loop.size() == 0)
-        {
-            for(int i = 0; i < message.length(); i++)
-            {
-                ArrayList<String> addition = new ArrayList<String>(
-                        matrix.getDotMatrix(message.substring(i , i + 1)));
-
-                loop.addAfter(addition);
-                loop.forward();
-            }
-            
-            return true;
-        }
-        
         for(int i = 0; i < message.length(); i++)
         {
             ArrayList<String> addition = new ArrayList<String>(
                     matrix.getDotMatrix(message.substring(i , i + 1)));
 
             loop.addAfter(addition);
-        }
+            loop.forward();
+        } //TODO FIX ME
         
         return true;
     }
@@ -325,28 +318,16 @@ public class DisplayEditor
             }
         }
         
-        if(loop.size() == 0)
-        {
-            for(int i = 0; i < message.length(); i++)
-            {
-                ArrayList<String> addition = new ArrayList<String>(
-                        matrix.getDotMatrix(message.substring(i , i + 1)));
-
-                loop.addBefore(addition);
-                loop.back();
-            }
-            
-            return true;
-        }
-        
         for(int i = 0; i < message.length(); i++)
         {
             ArrayList<String> addition = new ArrayList<String>(
                     matrix.getDotMatrix(message.substring(i , i + 1)));
-
+            
             loop.addBefore(addition);
+            loop.back(); //TODO Fix me
         }
         
+        loop.back();
         return true;
     }
     
@@ -423,9 +404,14 @@ public class DisplayEditor
             return false;
         }
         
-        loop.addAfter(new ArrayList<String>(matrix.getDotMatrix(replace)));
-        loop.back();
+        //remove the current item
         loop.removeCurrent(); 
+        
+        //because removeCurrent advances, we need to move back
+  //      loop.back();
+        
+        //TODO simplify into addBefore
+        loop.addBefore(new ArrayList<String>(matrix.getDotMatrix(replace)));
         
         return true;
     }
@@ -441,6 +427,107 @@ public class DisplayEditor
         for(int i = 0; i < times; i++)
             System.out.print(separator);
         System.out.println();
+    }
+    
+    static String removeTrailingWhitespace(String edit)
+    {
+        String complete = "";
+        int count;
+        
+        for(count = edit.length(); count > 0; count--)
+            if(!Character.isWhitespace(edit.substring(count - 1, count).charAt(0)))
+                break;
+        
+        complete = edit.substring(0, count);
+        
+        return complete;
+    }
+    
+    static String[] splitCommand(String input)
+    {
+        if(input.length() == 1)
+        {
+            String[] pack = new String[2];
+            pack[0] = input;
+            pack[1] = "";
+            
+            return pack;
+        }
+        
+        //find first whitespace
+        int fws = 0;
+        
+        for(fws = 0; fws < input.length(); fws++)
+            if(input.substring(fws, fws + 1).charAt(0) == ' ')
+                break;
+        
+        //make two strings by substring, then input into string array
+        String initial = input.substring(0, fws).trim();
+        String data = removeTrailingWhitespace(input.substring(fws + 1));
+        
+        String[] pack = new String[2];
+        pack[0] = initial;
+        pack[1] = data;
+        
+        return pack;        
+    }
+    /**
+     * 
+     * @param input
+     * @return true if input is a valid command that requires additional inputs
+     * or if input does not require additional inputs (e.g. x); false otherwise
+     */
+    static boolean isValidAdditionalInputCommand(String input)
+    {
+        char option = input.charAt(0);
+        
+        if(input.length() > 1) 
+        {
+            boolean requiresSpace = false;
+            
+            for(char c : ADDTL_INPUT_COMMANDS)
+            {
+                if(option == c)
+                {
+                    requiresSpace = true;
+                    break;
+                }
+            }
+            
+            if(!requiresSpace)
+                return true;
+            
+            if(!Character.isWhitespace(input.charAt(1)))
+                return false;
+            
+            String seq = input.substring(1).trim();
+            
+            if(seq.length() > 1 && option == 'r')
+                return false;
+            
+            if(seq.length() < 1)
+                return false;
+            
+            if(option == 'j')
+            {
+                try
+                {
+                    Integer.parseInt(seq);
+                }
+                
+                catch (NumberFormatException e)
+                {
+                    return false;
+                }
+            }
+        }
+        
+        else
+            for(char c : ADDTL_INPUT_COMMANDS)
+                if(option == c)
+                    return false;
+        
+        return true;
     }
     
     /**
@@ -499,15 +586,18 @@ public class DisplayEditor
         {
             System.out.print("enter command (? for help)> ");
             String input = scanner.nextLine();
-            String remainder = null;
+            System.out.print(input + "\n");
+            
+            String[] commandData = splitCommand(input);
+            char option = commandData[0].charAt(0);
+            String remainder = commandData[1];
             
             if(input.length() > 0) 
             {
-                char option = input.charAt(0);
-                
-                if(input.length() > 1) 
+                if(!isValidAdditionalInputCommand(input))
                 {
-                    remainder = input.substring(1).trim();
+                    System.out.println("invalid command");
+                    continue;
                 }
                 
                 switch(option)
@@ -528,7 +618,6 @@ public class DisplayEditor
                         break;
                         
                     case 's':
-                        //TODO <CHAR> <SPACE> <STRING>
                         saveData(remainder.trim());
                         break;
                         
@@ -537,7 +626,6 @@ public class DisplayEditor
                         
                         if(traversed)
                             printCurrentContext();
-                        
                         break;
                         
                     case 'x':
@@ -545,7 +633,6 @@ public class DisplayEditor
                         
                         if(!loopIsEmpty())
                             printCurrentContext();
-                        
                         break;
                         
                     case 'c':
@@ -553,7 +640,6 @@ public class DisplayEditor
                         break;
                         
                     case 'l':
-                        //TODO <CHAR> <SPACE> <STRING>
                     	loadData(remainder);
                         break;
                         
@@ -562,11 +648,9 @@ public class DisplayEditor
                         
                         if(moved)
                             printCurrentContext();
-                        
                         break;
                         
                     case 'a':
-                        //TODO <CHAR> <SPACE> <STRING>
                         boolean noInvalidChars = addAfter(remainder);
                         
                         if(noInvalidChars)
@@ -575,7 +659,6 @@ public class DisplayEditor
                         break;
                         
                     case 'r':
-                      //TODO <CHAR> <SPACE> <CHAR>
                         replaceCurrent(remainder.substring(0, 1));
                         
                     	if(loopIsEmpty())
@@ -590,17 +673,14 @@ public class DisplayEditor
                         break;
                         
                     case 'j':
-                        //TODO <CHAR> <SPACE> <INTEGER>
                         boolean stateChanged = traverseLoop(
                                             Integer.parseInt(remainder.trim()));
                         
                         if(stateChanged)
                             printCurrentContext();
-                        
                         break;
                         
                     case 'i':
-                        //TODO <CHAR> <SPACE> <STRING>
                         addBefore(remainder.trim());
                         printCurrentContext();
                         break;
@@ -615,9 +695,6 @@ public class DisplayEditor
                         main(args);
                 }
             }
-            
-            //exit if empty command
-            else return;
         }
         scanner.close();
     }
