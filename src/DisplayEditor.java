@@ -106,68 +106,48 @@ public class DisplayEditor
      */
     static void printCurrentContext()
     {
-        //TODO refactor
-        switch(loop.size())
+        if(loop.size() == 0)
         {
-            case 0:
-                System.out.println(NO_MESSAGES);
-                return;
-                
-            case 1:
-                printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
-                
-                List<String> list = loop.getCurrent();
-                
-                for(String s : list)
-                    System.out.println(s);
-                
-                printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
-                
-                return;
-                
-            case 2:
-                printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
-                
-                List<String> list1 = loop.getCurrent();
-               
-                for(String s : list1)
-                    System.out.println(s);
-                
-                printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
-                
-                loop.forward();
-                
-                ArrayList<String> list2 = loop.getCurrent();
-                
-                for(String s : list2)
-                    System.out.println(s);
-                
-                //return back to current
-                loop.back();
-                
-                return;
-                
-            default:
-                loop.back();
-                
-                for(int i = 0; i < 3; i++)
-                {
-                    List<String> list3 = loop.getCurrent();
-                    
-                    for(String s : list3)
-                        System.out.println(s);
-                    
-                    if(i < 2)
-                    {
-                        loop.forward();
-                        printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
-                    }
-                }
-                
-                loop.back();
-                
-                return;
+            System.out.println(NO_MESSAGES);
+            return;
         }
+        
+        int count = 0;
+        
+        //stop condition is either 3 or the loop size if loop has < 3 elements
+        int stop = (loop.size() < 3) ? loop.size() : 3;
+        
+        //cases 1 and 2 require a separator line, but 3 requires a step back
+        if(stop == 3)
+            loop.back();
+        else 
+            printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
+        
+        //print out the data
+        while(count < stop)
+        {
+            List<String> data = loop.getCurrent();
+            
+            for(String s : data)
+                System.out.println(s);
+            
+            //prints out separator lines up to the last element
+            //also prevents us from moving too far!
+            if(count < stop - 1)
+            {
+                printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
+                loop.forward();
+            }
+            
+            count++;
+        }
+        
+        //move back to current
+        loop.back();
+        
+        if(stop == 1)
+            printSeparator(LOOP_SEPARATOR, NUMBER_SEPARATORS);
+        
     }
     
     /**
@@ -566,7 +546,7 @@ public class DisplayEditor
      */
     public static void main(String[] args)
     {        
-        boolean userInput = true;
+        boolean userInput = (args.length == 0) ? true : false;
         
         //Check if valid number of command line arguments
         if(args.length > 2 || args.length == 1)
@@ -605,11 +585,6 @@ public class DisplayEditor
             {
                 System.err.println("Problem with input file!");
                 return;
-            }
-            
-            finally
-            {
-                userInput = false;
             }
         }
 
