@@ -29,7 +29,7 @@ public class MessageLoop<E> implements LoopADT<E>
     private int numItems;
     
     /**
-     * Constructs a MessageLoop object.
+     * Constructs a MessageLoop with no items.
      */
     public MessageLoop()
     {
@@ -115,6 +115,7 @@ public class MessageLoop<E> implements LoopADT<E>
     /**
      * Removes the current node from the MessageLoop and advances.
      * @return the item being removed
+     * @throws EmptyLoopException if the loop is empty
      */
     public E removeCurrent() 
     {
@@ -149,6 +150,7 @@ public class MessageLoop<E> implements LoopADT<E>
 
     /**
      * Advances the current node to the next node in the MessageLoop.
+     * @throws EmptyLoopException if there are no items in the loop.
      */
     public void forward() 
     {
@@ -160,6 +162,7 @@ public class MessageLoop<E> implements LoopADT<E>
     
     /**
      * Moves the current node to the previous node in the MessageLoop.
+     * @throws EmptyLoopException if there are no items in the loop.
      */
     public void back() 
     {

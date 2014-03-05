@@ -16,7 +16,7 @@
 
 /**
  * This exception is thrown when unrecognized characters are seen in
- * the DotMatrix and are not contained in the specified alphabets.txt
+ * the DotMatrix and are not contained in the specified alphabets.txt.
  */
 public class UnrecognizedCharacterException extends RuntimeException 
 {

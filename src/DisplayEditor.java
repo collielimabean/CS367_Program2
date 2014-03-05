@@ -100,11 +100,13 @@ public class DisplayEditor
     
     /**
      * Displays the context of the current element.
-     * i.e. display previous, current, and then next element.
+     * [Current] for 1 element
+     * [Current], [Next] for 2 elements
+     * [Previous item], [Current], [Next] for >= 3 elements
      */
     static void printCurrentContext()
     {
-        //TODO see if can make more efficient
+        //TODO refactor
         switch(loop.size())
         {
             case 0:
@@ -186,6 +188,9 @@ public class DisplayEditor
             {
                 String line = scan.nextLine();
                 
+                //if we hit this, then we know that we hit the
+                //end of a DotMatrix character and can
+                //process and add to the MessageLoop
                 if(line.contains(MATRIX_OFFLINE_SEPARATOR))
                 {
                     loop.addAfter(input);
@@ -241,9 +246,11 @@ public class DisplayEditor
             {
                 ArrayList<String> list = it.next();
                 
+                //write loop element data
                 for(String s : list)
                     writer.println(s);
                 
+                //separator between DotMatrices printer
                 for(int i = 0; i < 10; i++)
                     writer.print(MATRIX_OFFLINE_SEPARATOR);
                 
@@ -269,20 +276,17 @@ public class DisplayEditor
      * after the current element. Adds no elements if invalid chars found.
      * @param message Requested stream of characters to add after current.
      * @return true if no invalid characters found, false otherwise
+     * @throws UnrecognizedCharacterException if any character is not 
+     * in the mapping as defined in the alphabets.txt
      */
-    static boolean addAfter(String message)
+    static void addAfter(String message)
     {
         //Verify that every character in message is valid
         for(int i = 0; i < message.length(); i++)
-        {
             if(!matrix.isValidCharacter(message.substring(i, i + 1)))
-            {
-                System.out.println("An unrecognized character " 
-                                        +  "has been entered.");
-                return false;
-            }
-        }
+                throw new UnrecognizedCharacterException();
         
+        //add each character to the MessageLoop
         for(int i = 0; i < message.length(); i++)
         {
             ArrayList<String> addition = new ArrayList<String>(
@@ -293,8 +297,6 @@ public class DisplayEditor
             if(loop.size() != 0)
                 loop.forward();
         }
-        
-        return true;
     }
     
     /**
@@ -302,19 +304,17 @@ public class DisplayEditor
      * before the current element. Adds no elements if invalid chars found.
      * @param message Requested stream of characters to add before current.
      * @return true if no invalid characters found, false otherwise
+     * @throws UnrecognizedCharacterException if any character is not
+     * in the mapping as defined in the alphabets.txt
      */
-    static boolean addBefore(String message)
+    static void addBefore(String message)
     {
+        //verify if each character in message is valid
         for(int i = 0; i < message.length(); i++)
-        {
             if(!matrix.isValidCharacter(message.substring(i, i + 1)))
-            {
-                System.out.println("An unrecognized character " 
-                                        +  "has been entered.");
-                return false;
-            }
-        }
+                throw new UnrecognizedCharacterException();
         
+        //add each character to the MessageLoop
         for(int i = 0; i < message.length(); i++)
         {
             ArrayList<String> addition = new ArrayList<String>(
@@ -325,8 +325,6 @@ public class DisplayEditor
             if(loop.size() != 0)
                 loop.back();
         }
-        
-        return true;
     }
     
     /**
@@ -384,6 +382,8 @@ public class DisplayEditor
      * This method also assumes that the input string has length 1.
      * @param replace A one character String to replace the current char.
      * @return true if successful replacement, false otherwise.
+     * @throws UnrecognizedCharacterException if the specified replacement
+     * character is not in the mapping as defined by alphabets.txt
      */
     static boolean replaceCurrent(String replace)
     {
@@ -394,15 +394,14 @@ public class DisplayEditor
         }
         
         if(!matrix.isValidCharacter(replace))
-        {
-            System.out.println("An unrecognized character " 
-                    +  "has been entered.");
-            return false;
-        }
+            throw new UnrecognizedCharacterException();
         
         //remove the current item
         loop.removeCurrent(); 
         loop.addBefore(new ArrayList<String>(matrix.getDotMatrix(replace)));
+        
+        //return to current
+        //since removeCurrent() moves us forward
         loop.back();
         
         return true;
@@ -490,7 +489,7 @@ public class DisplayEditor
     {
         char command = input.charAt(0);
         
-        //verify single 
+        //verify if it is a single input command 
         for(char c : SINGLE_INPUT_COMMANDS)
         {
             if(command == c)
@@ -518,21 +517,29 @@ public class DisplayEditor
      */
     private static boolean isValidAdditionalInputCommand(String input)
     {
+        //grab the command
         char option = input.charAt(0);
         
         if(input.length() > 1)
         {
+            //all add'l command require whitespace after initial char
             if(!Character.isWhitespace(input.charAt(1)))
                 return false;
             
+            //trim the add'l data
             String seq = input.substring(1).trim();
             
+            //The r command MUST have an add'l data length of 1
+            //corresponding to one character
             if(seq.length() > 1 && option == 'r')
                 return false;
             
+            //if there is no add'l data -> not valid
             if(seq.length() < 1)
                 return false;
             
+            //attempt to parse add'l data if jump command
+            //if cannot parse, then invalid
             if(option == 'j')
             {
                 try
@@ -549,6 +556,7 @@ public class DisplayEditor
         
         else return false;
         
+        //if all tests are passed
         return true;
     }
     
@@ -558,6 +566,8 @@ public class DisplayEditor
      */
     public static void main(String[] args)
     {        
+        boolean userInput = true;
+        
         //Check if valid number of command line arguments
         if(args.length > 2 || args.length == 1)
         {
@@ -596,6 +606,11 @@ public class DisplayEditor
                 System.err.println("Problem with input file!");
                 return;
             }
+            
+            finally
+            {
+                userInput = false;
+            }
         }
 
         loop = new MessageLoop<ArrayList<String>>();
@@ -608,7 +623,11 @@ public class DisplayEditor
         {
             System.out.print("enter command (? for help)> ");
             String input = scanner.nextLine();
-            System.out.print(input + "\n");
+            
+            //if the user manually inputs, we don't want
+            //to repeat what they just input
+            if(!userInput)
+                System.out.print(input + "\n");
             
             String[] commandData = splitCommand(input);
             char option = commandData[0].charAt(0);
@@ -622,107 +641,136 @@ public class DisplayEditor
                     continue;
                 }
                 
-                switch(option)
+                try
                 {
-                    case '?':
-                        System.out.println("s (save)" 
-                                            + "    l (load)" 
-                                            + "       d (display)");
+                    switch(option)
+                    {
                         
-                        System.out.println("n (next)" 
-                                            + "    p (previous)" 
-                                            + "   j (jump)");
+                        /** Prints out available commands*/
+                        case '?':
+                            System.out.println("s (save)" 
+                                                + "    l (load)" 
+                                                + "       d (display)");
+                            
+                            System.out.println("n (next)" 
+                                                + "    p (previous)" 
+                                                + "   j (jump)");
+                            
+                            System.out.println("x (delete)" 
+                                                + "  a (add after)" 
+                                                + "  i (insert before)");
+                            
+                            System.out.println("c (context)" 
+                                                + " r (replace)" 
+                                                + "    q (quit)");
+                            break;
+                            
+                        /** Serializes/Saves the MessageLoop into the 
+                         *  specified file path.
+                         * */    
+                        case 's':
+                            saveData(remainder.trim());
+                            break;
+                            
+                        /** Moves the loop forward by one */
+                        case 'n':
+                            boolean traversed = traverseLoop(1);
+                            
+                            if(traversed)
+                                printCurrentContext();
+                            break;
                         
-                        System.out.println("x (delete)" 
-                                            + "  a (add after)" 
-                                            + "  i (insert before)");
+                        /** Delete the current item in the loop.*/
+                        case 'x':
+                            removeCurrent();
+                            
+                            if(loop.size() > 0)
+                                printCurrentContext();
+                            break;
                         
-                        System.out.println("c (context)" 
-                                            + " r (replace)" 
-                                            + "    q (quit)");
-                        break;
-                        
-                    case 's':
-                        saveData(remainder.trim());
-                        break;
-                        
-                    case 'n':
-                        boolean traversed = traverseLoop(1);
-                        
-                        if(traversed)
+                        /** Print the context of current
+                         * @see printCurrentContext method
+                         */
+                        case 'c':
                             printCurrentContext();
-                        break;
+                            break;
                         
-                    case 'x':
-                        removeCurrent();
+                        /** Load serialized data into the MessageLoop*/
+                        case 'l':
+                            loadData(remainder);
+                            break;
                         
-                        if(loop.size() > 0)
+                        /** Move the loop back by one*/
+                        case 'p':
+                            boolean moved = traverseLoop(-1);
+                            
+                            if(moved)
+                                printCurrentContext();
+                            break;
+                        
+                        /** Add specified chars after the current item */
+                        case 'a':
+                            addAfter(remainder);
                             printCurrentContext();
-                        break;
+                            
+                            break;
                         
-                    case 'c':
-                    	printCurrentContext();
-                        break;
+                        /** Replace the current char with specified char*/
+                        case 'r':
+                            replaceCurrent(remainder.substring(0, 1));
+                            
+                            if(loop.size() <= 0)
+                                System.out.println(NO_MESSAGES);
+                            
+                            else printCurrentContext();
+                            
+                            break;
                         
-                    case 'l':
-                    	loadData(remainder);
-                        break;
+                        /** Display the entire loop, starting with current */
+                        case 'd':
+                            displayLoop();
+                            break;
                         
-                    case 'p':
-                        boolean moved = traverseLoop(-1);
+                        /** 
+                         * Jump/traverse the list the specified 
+                         * number of times
+                         */
+                        case 'j':
+                            boolean stateChanged = traverseLoop(
+                                               Integer.parseInt(
+                                                       remainder.trim()));
+                            
+                            if(stateChanged)
+                                printCurrentContext();
+                            break;
                         
-                        if(moved)
+                        /** Insert the specified chars before the current */
+                        case 'i':
+                            addBefore(remainder.trim());
                             printCurrentContext();
-                        break;
+                            break;
                         
-                    case 'a':
-                        boolean noInvalidChars = addAfter(remainder);
+                        /** Exit the program */
+                        case 'q':
+                            stop = true;
+                            System.out.println("quit");
+                            break;
                         
-                        if(noInvalidChars)
-                            printCurrentContext();
-                        
-                        break;
-                        
-                    case 'r':
-                        replaceCurrent(remainder.substring(0, 1));
-                        
-                    	if(loop.size() <= 0)
-                    	    System.out.println(NO_MESSAGES);
-                    	
-                    	else printCurrentContext();
-                    	
-                    	break;
-                        
-                    case 'd':
-                    	displayLoop();
-                        break;
-                        
-                    case 'j':
-                        boolean stateChanged = traverseLoop(
-                                           Integer.parseInt(remainder.trim()));
-                        
-                        if(stateChanged)
-                            printCurrentContext();
-                        break;
-                        
-                    case 'i':
-                        boolean noInvalid = addBefore(remainder.trim());
-                        
-                        if(noInvalid)
-                            printCurrentContext();
-                        break;
-                        
-                    case 'q':
-                        stop = true;
-                        System.out.println("quit");
-                        break;
-                    
-                    default:
-                        System.out.println("invalid command");
-                        main(args);
+                        /** Invalid command handling*/
+                        default:
+                            System.out.println("invalid command");
+                            main(args);
+                    }
+                }
+                
+                catch (UnrecognizedCharacterException e)
+                {
+                    System.out.println("An unrecognized character " 
+                            +  "has been entered.");
                 }
             }
         }
+        
         scanner.close();
     }
 }
