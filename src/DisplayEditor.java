@@ -104,6 +104,7 @@ public class DisplayEditor
      */
     static void printCurrentContext()
     {
+        //TODO see if can make more efficient
         switch(loop.size())
         {
             case 0:
@@ -138,6 +139,9 @@ public class DisplayEditor
                 
                 for(String s : list2)
                     System.out.println(s);
+                
+                //return back to current
+                loop.back();
                 
                 return;
                 
@@ -424,20 +428,19 @@ public class DisplayEditor
      */
     static String removeTrailingWhitespace(String edit)
     {
-        String complete = "";
         int count;
         
         for(count = edit.length(); count > 0; count--)
         {
+            //Gets the last character of the string
             char spaceCheck = edit.substring(count - 1, count).charAt(0);
-                    
+            
+            //exit loop if not whitespace (indicating we can substring @ count)
             if(!Character.isWhitespace(spaceCheck))
                 break;
         }
 
-        complete = edit.substring(0, count);
-        
-        return complete;
+        return edit.substring(0, count);
     }
     
     /**
@@ -449,6 +452,7 @@ public class DisplayEditor
      */
     static String[] splitCommand(String input)
     {
+        //if the length is one, we set the extra data field to an empty String
         if(input.length() == 1)
         {
             String[] pack = new String[2];
@@ -458,9 +462,10 @@ public class DisplayEditor
             return pack;
         }
         
-        //find first whitespace
+        //first whitespace character indexer
         int fws = 0;
         
+        //find first whitespace
         for(fws = 0; fws < input.length(); fws++)
             if(input.substring(fws, fws + 1).charAt(0) == ' ')
                 break;
@@ -477,9 +482,9 @@ public class DisplayEditor
     }
     
     /**
-     * 
-     * @param input
-     * @return
+     * Validates all commands, including single and add'l input commands.
+     * @param input Commmand to be checked
+     * @return true if valid command, false otherwise
      */
     static boolean isValidCommand(String input)
     {
@@ -497,6 +502,7 @@ public class DisplayEditor
             }
         }
         
+        //if it is an add'l input command, validate
         for(char c : ADDTL_INPUT_COMMANDS)
             if(command == c)
                 return isValidAdditionalInputCommand(input);
@@ -505,8 +511,8 @@ public class DisplayEditor
     }
     
     /**
-     * 
-     * @param input
+     * Validates commands that require additional input, e.g. jump 'j'
+     * @param input Command to be checked
      * @return true if input is a valid command that requires additional inputs
      * or if input does not require additional inputs (e.g. x); false otherwise
      */
