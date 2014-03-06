@@ -23,7 +23,6 @@ import java.util.Iterator;
  */
 class MessageLoopIterator<E> implements Iterator<E> 
 {
-    
     private DblListNode<E> current;
     
     /**

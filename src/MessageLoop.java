@@ -24,7 +24,6 @@ import java.util.Iterator;
  */
 public class MessageLoop<E> implements LoopADT<E> 
 {
-    
     private DblListNode<E> current;
     private int numItems;
     
@@ -174,7 +173,7 @@ public class MessageLoop<E> implements LoopADT<E>
 
     /**
      * Gets the number of items in the MessageLoop.
-     * @return An int containing the number of items in the MessageLoop
+     * @return The number of items in the MessageLoop
      */
     public int size() 
     {

@@ -1,9 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                   ALL STUDENTS COMPLETE THESE SECTIONS
-// Title:            Displayjava
+// Title:            DisplayEditor.java
 // Files:            DblListNode.java, MessageLoop.java,
 //                   MessageLoopIterator.java, EmptyLoopException.java
-//                   UnrecognizedCharacterException.java
+//                   UnrecognizedCharacterException.java, DisplayEditor.java
 //
 // Semester:         CS367 Spring 2014
 //
