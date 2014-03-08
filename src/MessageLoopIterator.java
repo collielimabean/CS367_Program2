@@ -24,6 +24,8 @@ import java.util.Iterator;
 class MessageLoopIterator<E> implements Iterator<E> 
 {
     private DblListNode<E> current;
+    private DblListNode<E> head;
+    private boolean traversed;
     
     /**
      * Constructs a MessageLoopIterator object.
@@ -32,18 +34,18 @@ class MessageLoopIterator<E> implements Iterator<E>
     MessageLoopIterator(DblListNode<E> current)
     {
         this.current = current;
+        head = current;
+        traversed = false;
     }
     
     /**
-     * Checks whether if the next node exists
-     * @return true if there exists another node, false otherwise
+     * Checks whether if the next node exists and if the loop has come
+     * full circle.
+     * @return true if the iterator has looped to the beginning, false otherwise
      */
     public boolean hasNext()
     {
-        if(current.getNext() != null)
-            return true;
-        
-        return false;
+        return !traversed;
     }
 
     /**
@@ -55,7 +57,12 @@ class MessageLoopIterator<E> implements Iterator<E>
         E data = current.getData();
         
         if(hasNext())
+        {
             current = current.getNext();
+            
+            if(current == head)
+                traversed = true;
+        }
         
         return data;
     }
@@ -80,6 +87,9 @@ class MessageLoopIterator<E> implements Iterator<E>
         
         //set current to next
         current = next;
+        
+        if(current == head)
+            traversed = true;
     }
 
 }

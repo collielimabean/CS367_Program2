@@ -81,20 +81,16 @@ public class DisplayEditor
         
         Iterator<ArrayList<String>> it = loop.iterator();
         
-        int counter = 0;
-        
         System.out.println();
         
         //Iterate over each element and print associated data
-        while(it.hasNext() && counter < loop.size())
+        while(it.hasNext())
         {
             List<String> data = it.next();
             
             for(String s : data)
                 System.out.println(s);
             System.out.println();
-            
-            counter++;
         }
     }
     
@@ -220,9 +216,7 @@ public class DisplayEditor
             
             Iterator<ArrayList<String>> it = loop.iterator();
             
-            int count = 0;
-            
-            while(it.hasNext() && (count < loop.size()))
+            while(it.hasNext())
             {
                 ArrayList<String> list = it.next();
                 
@@ -236,7 +230,6 @@ public class DisplayEditor
                 
                 writer.println();
                 
-                count++;
             }
             
             writer.close();
