@@ -62,6 +62,8 @@ public class MessageLoop<E> implements LoopADT<E>
     	//Set appropriate references
         current.getPrevious().setNext(newNode);
     	current.setPrevious(newNode);
+    	
+    	this.back();
 
     	//Increment the number of items in the loop
     	numItems++;
@@ -93,6 +95,8 @@ public class MessageLoop<E> implements LoopADT<E>
         //Set appropriate references
         current.getNext().setPrevious(newNode);
         current.setNext(newNode);
+        
+        this.forward();
         
         //Increment the number of items in the loop
         numItems++;

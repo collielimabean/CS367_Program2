@@ -33,23 +33,23 @@ import java.util.Scanner;
 public class DisplayEditor
 {
     /** A String containing the path to the alphabet for the DotMatrix */
-    static String ALPHABET_PATH = "";
+    private static String ALPHABET_PATH = "";
     
     /** A String containing the "no messages" display.*/
-    static final String NO_MESSAGES = "no messages";
+    private static final String NO_MESSAGES = "no messages";
     
     /** A String containing the pattern to separate dot matrix chars
      *  when serializing the MessageLoop.
      */
-    static final String MATRIX_OFFLINE_SEPARATOR = "#";
+    private static final String MATRIX_OFFLINE_SEPARATOR = "#";
     
     /** A String containing the pattern to separate dot matrix chars
      *  when displaying the MessageLoop in the console.
      */
-    static final String LOOP_SEPARATOR = "*";
+    private static final String LOOP_SEPARATOR = "*";
     
     /** An integer specifying how many times to print the separator pattern. */
-    static final int NUMBER_SEPARATORS = 10;
+    private static final int NUMBER_SEPARATORS = 10;
     
     /** A char array specifying commands that should be alone (by itself) */ 
     private static final char[] SINGLE_INPUT_COMMANDS = {'n', 'x', 'c', 'p'
@@ -71,7 +71,7 @@ public class DisplayEditor
     /**
      * Displays every element in the MessageLoop.
      */
-    static void displayLoop()
+    private static void displayLoop()
     {
         if(loop.size() <= 0)
         {
@@ -100,7 +100,7 @@ public class DisplayEditor
      * [Current], [Next] for 2 elements
      * [Previous item], [Current], [Next] for >= 3 elements
      */
-    static void printCurrentContext()
+    private static void printCurrentContext()
     {
         if(loop.size() == 0)
         {
@@ -151,7 +151,7 @@ public class DisplayEditor
      * @param loadPath
      * @return true if load successful, false otherwise
      */
-    static boolean loadData(String loadPath)
+    private static boolean loadData(String loadPath)
     {
         File load = new File(loadPath);
         
@@ -170,13 +170,13 @@ public class DisplayEditor
                 if(line.contains(MATRIX_OFFLINE_SEPARATOR))
                 {
                     loop.addAfter(input);
-                    loop.forward();
                     input = new ArrayList<String>();
                 }
                 
                 else input.add(line);
             }
             
+            //move forward since addAfter moves us to the end
             loop.forward();
             
             scan.close();
@@ -196,7 +196,7 @@ public class DisplayEditor
      * @param savePath 
      * @return true if successful, false otherwise.
      */
-    static boolean saveData(String savePath)
+    private static boolean saveData(String savePath)
     {
         if(loop.size() <= 0)
         {
@@ -252,7 +252,7 @@ public class DisplayEditor
      * @throws UnrecognizedCharacterException if any character is not 
      * in the mapping as defined in the alphabets.txt
      */
-    static void addAfter(String message)
+    private static void addAfter(String message)
     {
         //Verify that every character in message is valid
         for(int i = 0; i < message.length(); i++)
@@ -266,9 +266,6 @@ public class DisplayEditor
                     matrix.getDotMatrix(message.substring(i , i + 1)));
 
             loop.addAfter(addition);
-            
-            if(loop.size() != 0)
-                loop.forward();
         }
     }
     
@@ -280,7 +277,7 @@ public class DisplayEditor
      * @throws UnrecognizedCharacterException if any character is not
      * in the mapping as defined in the alphabets.txt
      */
-    static void addBefore(String message)
+    private static void addBefore(String message)
     {
         //verify if each character in message is valid
         for(int i = 0; i < message.length(); i++)
@@ -294,9 +291,6 @@ public class DisplayEditor
                     matrix.getDotMatrix(message.substring(i , i + 1)));
             
             loop.addBefore(addition);
-            
-            if(loop.size() != 0)
-                loop.back();
         }
     }
     
@@ -304,7 +298,7 @@ public class DisplayEditor
      * Removes the current DotMatrix string in the loop.
      * Returns if no elements to remove.
      */
-    static void removeCurrent()
+    private static void removeCurrent()
     {
         if(loop.size() <= 0)
         {
@@ -315,10 +309,7 @@ public class DisplayEditor
         loop.removeCurrent();
         
         if(loop.size() <= 0)
-        {
             System.out.println(NO_MESSAGES);
-            return;
-        }
     }
     
     /**
@@ -328,7 +319,7 @@ public class DisplayEditor
      * Positive indicates forward, negative backward.</p>
      * @return true if loop traversed, false otherwise
      */
-    static boolean traverseLoop(int steps)
+    private static boolean traverseLoop(int steps)
     {
         if(loop.size() <= 0) 
         {
@@ -358,7 +349,7 @@ public class DisplayEditor
      * @throws UnrecognizedCharacterException if the specified replacement
      * character is not in the mapping as defined by alphabets.txt
      */
-    static boolean replaceCurrent(String replace)
+    private static boolean replaceCurrent(String replace)
     {
         if(loop.size() <= 0)
         {
@@ -373,10 +364,6 @@ public class DisplayEditor
         loop.removeCurrent(); 
         loop.addBefore(new ArrayList<String>(matrix.getDotMatrix(replace)));
         
-        //return to current
-        //since removeCurrent() moves us forward
-        loop.back();
-        
         return true;
     }
     
@@ -386,7 +373,7 @@ public class DisplayEditor
      * @param separator A String containing a pattern to repeat
      * @param times the number of times to repeat a pattern
      */
-    static void printSeparator(String separator, int times)
+    private static void printSeparator(String separator, int times)
     {
         for(int i = 0; i < times; i++)
             System.out.print(separator);
@@ -398,7 +385,7 @@ public class DisplayEditor
      * @param edit String to remove trailing whitespace
      * @return String with trailing whitespace removed
      */
-    static String removeTrailingWhitespace(String edit)
+    private static String removeTrailingWhitespace(String edit)
     {
         int count;
         
@@ -422,7 +409,7 @@ public class DisplayEditor
      * @param input String command to split
      * @return A string array [0 = command] [1 = remaining data]
      */
-    static String[] splitCommand(String input)
+    private static String[] splitCommand(String input)
     {
         //if the length is one, we set the extra data field to an empty String
         if(input.length() == 1)
@@ -458,7 +445,7 @@ public class DisplayEditor
      * @param input Commmand to be checked
      * @return true if valid command, false otherwise
      */
-    static boolean isValidCommand(String input)
+    private static boolean isValidCommand(String input)
     {
         char command = input.charAt(0);
         
@@ -548,6 +535,7 @@ public class DisplayEditor
             return;
         }
         
+        //Input for no command-line arguments
         else if(args.length == 0)
         {
             System.out.println("Enter the dot-matrix alphabets file:");
@@ -557,6 +545,7 @@ public class DisplayEditor
             ALPHABET_PATH = scanner.nextLine();
         }
         
+        //Case for input file + alphabets arguments
         else
         {
             ALPHABET_PATH = args[1];
@@ -597,6 +586,7 @@ public class DisplayEditor
             if(!userInput)
                 System.out.print(input + "\n");
             
+            //split command into two parts
             String[] commandData = splitCommand(input);
             char option = commandData[0].charAt(0);
             String remainder = commandData[1];
